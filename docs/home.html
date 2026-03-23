@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>QRCodeGen - Create Custom QR Codes</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"
+      rel="stylesheet"
+    />
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: "#FAC638",
+              "background-light": "#f8f8f5",
+              "background-dark": "#231e0f",
+            },
+            fontFamily: { display: "Space Grotesk" },
+            borderRadius: {
+              DEFAULT: "0.25rem",
+              lg: "0.5rem",
+              xl: "0.75rem",
+              full: "9999px",
+            },
+          },
+        },
+      };
+    </script>
+  </head>
+  <body
+    class="bg-background-light dark:bg-background-dark font-display text-[#111418] dark:text-white"
+  >
+    <div class="relative flex min-h-screen w-full flex-col">
+      <header
+        class="sticky top-0 z-50 flex items-center justify-between whitespace-nowrap border-b border-solid border-gray-200/80 dark:border-gray-800/80 bg-background-light/80 dark:bg-background-dark/80 px-4 py-3 backdrop-blur-sm sm:px-6 lg:px-8"
+      >
+        <div class="flex items-center gap-4">
+          <span class="material-symbols-outlined text-primary text-3xl"
+            >qr_code_2</span
+          >
+          <h2 class="text-xl font-bold leading-tight tracking-tighter">
+            QRCodeGen
+          </h2>
+        </div>
+        <nav class="hidden items-center gap-9 md:flex">
+          <a
+            class="text-sm font-medium leading-normal text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary"
+            href="#features"
+            >Features</a
+          >
+          <a
+            class="text-sm font-medium leading-normal text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary"
+            href="#about"
+            >About Us</a
+          >
+          <a
+            class="text-sm font-medium leading-normal text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary"
+            href="#contact"
+            >Contact</a
+          >
+        </nav>
+        <div></div>
+      </header>
+      <main class="flex-grow">
+        <section class="w-full py-20 lg:py-32">
+          <div class="container mx-auto px-4 @container">
+            <div class="grid gap-12 lg:grid-cols-2 lg:gap-16">
+              <div class="flex flex-col justify-center gap-8">
+                <div class="flex flex-col gap-4 text-left">
+                  <h1
+                    class="text-4xl font-bold tracking-tighter sm:text-5xl xl:text-6xl text-[#111418] dark:text-white"
+                  >
+                    Create Custom QR Codes in Seconds
+                  </h1>
+                  <p
+                    class="max-w-[600px] text-gray-600 dark:text-gray-400 md:text-xl"
+                  >
+                    Enter any URL to instantly generate a free, high-quality QR
+                    code for your business or personal use.
+                  </p>
+                </div>
+                <div class="flex w-full max-w-lg flex-col gap-4">
+                  <label class="flex flex-col min-w-40 w-full">
+                    <div
+                      class="flex w-full flex-1 items-stretch rounded-xl h-14 bg-white dark:bg-gray-800 shadow-sm border border-gray-200 dark:border-gray-700 focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2 focus-within:ring-offset-background-light dark:focus-within:ring-offset-background-dark"
+                    >
+                      <div
+                        class="text-gray-500 dark:text-gray-400 flex items-center justify-center pl-4"
+                      >
+                        <span class="material-symbols-outlined">link</span>
+                      </div>
+                      <input
+                        class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-xl text-base font-normal leading-normal text-[#111418] dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400 border-none bg-transparent focus:outline-none focus:ring-0 px-4"
+                        placeholder="Enter your URL here..."
+                        value=""
+                      />
+                    </div>
+                  </label>
+                  <button
+                    class="flex w-full min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-xl h-12 px-5 bg-primary text-white text-base font-bold leading-normal tracking-wide hover:opacity-90"
+                  >
+                    <span class="truncate">Generate QR Code</span>
+                  </button>
+                </div>
+              </div>
+              <div
+                class="flex flex-col items-center justify-center gap-6 rounded-xl bg-white dark:bg-gray-800/50 p-8 shadow-lg border border-gray-200 dark:border-gray-700/50"
+              >
+                <div
+                  class="flex h-64 w-64 items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-800"
+                >
+                  <img
+                    class="h-48 w-48 text-gray-400 dark:text-gray-500"
+                    data-alt="placeholder for generated QR code"
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuBMlSTrF0dJj3BewSE-2CqhIdeOA4xZ8KcaoJh0SUwzh0PF1-EUhS9FWsK8Fuhv7bHBQHQogEqNjSMn7hoCz1WN_kBBV1kBZevpvSQlDbFAPX_W0HFTk_ttp3C73CmMb6dR1wMjNVAI2MeP25KwkiIiL7V2fWNMjK_FyscWCPFkI97xDwMMFC8AWp3nh1YE3-hO2DqO_yrCiHHY1QfoCjvd7b5_kaPBkBNnxubqb76d7YSphjPdvBDW8LI02Ro0H1RIMqBPEAzoKu3C"
+                  />
+                </div>
+                <p class="text-sm text-gray-500 dark:text-gray-400">
+                  Your QR code will appear here
+                </p>
+                <div class="flex w-full max-w-sm gap-4">
+                  <button
+                    class="flex flex-1 min-w-[84px] cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-wide hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+                    disabled=""
+                  >
+                    <span class="material-symbols-outlined">download</span>
+                    <span class="truncate">Download</span>
+                  </button>
+                  <button
+                    class="flex flex-1 min-w-[84px] cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-lg h-10 px-4 bg-gray-200 dark:bg-gray-700 text-[#111418] dark:text-white text-sm font-bold leading-normal tracking-wide hover:bg-gray-300 dark:hover:bg-gray-600 disabled:cursor-not-allowed disabled:opacity-50"
+                    disabled=""
+                  >
+                    <span class="material-symbols-outlined">palette</span>
+                    <span class="truncate">Beautify</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+        <section
+          class="w-full bg-white dark:bg-background-dark py-20 lg:py-24"
+          id="features"
+        >
+          <div class="container mx-auto px-4">
+            <div class="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
+              <div class="flex flex-col gap-6">
+                <div class="flex flex-col gap-4">
+                  <span class="text-primary font-semibold">Our Features</span>
+                  <h2
+                    class="text-3xl font-bold tracking-tighter sm:text-4xl text-[#111418] dark:text-white"
+                  >
+                    Go Beyond the Basics
+                  </h2>
+                  <p
+                    class="max-w-2xl text-gray-600 dark:text-gray-400 md:text-lg"
+                  >
+                    QRCodeGen offers a suite of powerful tools to make your QR
+                    codes more effective, engaging, and aligned with your brand.
+                    From design customization to performance tracking, we have
+                    you covered.
+                  </p>
+                </div>
+                <ul class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <li class="flex items-start gap-3">
+                    <span class="material-symbols-outlined text-primary mt-1"
+                      >check_circle</span
+                    >
+                    <div class="flex flex-col">
+                      <p class="font-semibold">Dynamic QR Codes</p>
+                      <p class="text-sm text-gray-600 dark:text-gray-400">
+                        Update the destination URL anytime without changing the
+                        QR code.
+                      </p>
+                    </div>
+                  </li>
+                  <li class="flex items-start gap-3">
+                    <span class="material-symbols-outlined text-primary mt-1"
+                      >check_circle</span
+                    >
+                    <div class="flex flex-col">
+                      <p class="font-semibold">Custom Branding</p>
+                      <p class="text-sm text-gray-600 dark:text-gray-400">
+                        Incorporate your logo and brand colors for a
+                        professional look.
+                      </p>
+                    </div>
+                  </li>
+                  <li class="flex items-start gap-3">
+                    <span class="material-symbols-outlined text-primary mt-1"
+                      >check_circle</span
+                    >
+                    <div class="flex flex-col">
+                      <p class="font-semibold">Vector Formats</p>
+                      <p class="text-sm text-gray-600 dark:text-gray-400">
+                        Download in SVG for high-quality printing at any scale.
+                      </p>
+                    </div>
+                  </li>
+                  <li class="flex items-start gap-3">
+                    <span class="material-symbols-outlined text-primary mt-1"
+                      >check_circle</span
+                    >
+                    <div class="flex flex-col">
+                      <p class="font-semibold">Scan Analytics</p>
+                      <p class="text-sm text-gray-600 dark:text-gray-400">
+                        Track performance with detailed scan statistics.
+                      </p>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+              <div class="flex items-center justify-center">
+                <img
+                  alt="Illustration of QR code features"
+                  class="rounded-xl shadow-lg w-full max-w-md"
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuBK2fkPzk-BBUq5orTjYKAedRfpUq3D7Id4PlguCrSXDLrMocckWdzHZEs9TCXA0C4mrH4z70MgSXlMH1nlG6Bno-QRTS6GCAO-LzKWapAOsMKsTbIoJHJzwNnop39hcfrn7zfCx6Rh86fz1DcazNm_7CuZwlAaxYaDHFyTs6a-YddQNDs_hPhA1IZ3ARtIKNvQOeRUtywkFrlm0UrZDu311Xztghi4fK1ssp8igprh932rE2qoojmoIM9s6My64zx8RJXZ5rTdHxWf"
+                />
+              </div>
+            </div>
+          </div>
+        </section>
+        <section
+          class="w-full bg-background-light dark:bg-gray-900/50 py-20 lg:py-24"
+        >
+          <div class="container mx-auto flex flex-col gap-12 px-4 @container">
+            <div class="flex flex-col gap-4 text-center">
+              <h2
+                class="text-3xl font-bold tracking-tighter sm:text-4xl text-[#111418] dark:text-white"
+              >
+                Loved by Users Worldwide
+              </h2>
+              <p
+                class="mx-auto max-w-3xl text-gray-600 dark:text-gray-400 md:text-lg"
+              >
+                See what our satisfied customers have to say about their
+                experience with QRCodeGen.
+              </p>
+            </div>
+            <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              <div
+                class="flex flex-col gap-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-background-dark p-6"
+              >
+                <div class="flex items-center gap-4">
+                  <img
+                    alt="User avatar"
+                    class="h-12 w-12 rounded-full object-cover"
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuAyIdu-l-eavPz9iHNuew-RZvxurMZGusDL8VMJr5crlcDDKDb8mSr2JxryX3SffTJIWw4qEywUweKspyK4gvJg-MaNXpi-R9XIKNJABX9AxBZWW4OLKkfIMBEtCBEsXyzSHJ-sN49A4mGEloArol6pDT4Btz5QxW8fVmTYeQB9ycs5ZTP5mGT5SrBKulPtCqRhmezWE_j2G7ythYxc3wGkhFHGSMMuJFah5I_YNCvLbhGPgceIgUfJF6qkBEE81ZWnM8dfeKvyUJik"
+                  />
+                  <div>
+                    <h3 class="font-semibold">Sarah L.</h3>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">
+                      Marketing Manager
+                    </p>
+                  </div>
+                </div>
+                <p class="text-gray-600 dark:text-gray-400">
+                  "The customization options are fantastic! I was able to create
+                  a branded QR code for our campaign in minutes. The analytics
+                  are a huge plus for tracking engagement."
+                </p>
+              </div>
+              <div
+                class="flex flex-col gap-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-background-dark p-6"
+              >
+                <div class="flex items-center gap-4">
+                  <img
+                    alt="User avatar"
+                    class="h-12 w-12 rounded-full object-cover"
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuAXA7NV-1MeQezLhQptcseEbj2jhi0ZJhiTVOA4tROYt3jUCggoQGmSucGL5vBp9oe5-GG5PJ3uJbX03LCZpABbO8xii1IEgckyGquryAPKwXcc5CSDChP5wBF0fzgLJ7oqloMmdA1t5n0Ve4JBMDhak5Z0hxU9aliSKSS_gmWO71GzfLbZ95Kggwt2JPHTSfLz-F4gzgD5n0xW_kGdd43K5vDAQLK4nEK0BQxGyczTzK0PaEMPPD7alKieEUnlcPPXTzTxK0faHdER"
+                  />
+                  <div>
+                    <h3 class="font-semibold">David Chen</h3>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">
+                      Small Business Owner
+                    </p>
+                  </div>
+                </div>
+                <p class="text-gray-600 dark:text-gray-400">
+                  "Simple, fast, and reliable. QRCodeGen is my go-to for
+                  generating codes for my restaurant menus. The high-resolution
+                  downloads are perfect for printing."
+                </p>
+              </div>
+              <div
+                class="flex flex-col gap-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-background-dark p-6"
+              >
+                <div class="flex items-center gap-4">
+                  <img
+                    alt="User avatar"
+                    class="h-12 w-12 rounded-full object-cover"
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuBP35hzXlSpLq04pm3zK9l9bgAkRTzrxemrvhfd1tHs8htGg1CspyCyWvjh_6e6HX2sXMvkWDuEjefUUPhUiVOIKu3LPsYaZPjH_7Y1qtCIASTa_Ai10qRsPoqubv8a6raq_R6Q8XmbD50LciZcWSGutMZp1L4r7J1YDxTWk7Obz6v2P8Z4gfmg4bLhC4o4NL7sQOFNc-VesZtqmwP8NibiQzu97qvJ_Bjg3x8LeNNgS2WVgThBm17WbuGPYwOQOPm1eC-lTWsNfbsF"
+                  />
+                  <div>
+                    <h3 class="font-semibold">Emily R.</h3>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">
+                      Event Planner
+                    </p>
+                  </div>
+                </div>
+                <p class="text-gray-600 dark:text-gray-400">
+                  "I use this tool for all my events to share digital
+                  invitations and schedules. It's incredibly user-friendly and
+                  the dynamic QR codes are a lifesaver for last-minute changes."
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+        <section
+          class="w-full bg-white dark:bg-background-dark py-20 lg:py-24"
+          id="faq"
+        >
+          <div class="container mx-auto px-4">
+            <div class="mx-auto max-w-3xl">
+              <div class="flex flex-col gap-12">
+                <div class="flex flex-col gap-4 text-center">
+                  <h2 class="text-3xl font-bold tracking-tighter sm:text-4xl">
+                    Frequently Asked Questions
+                  </h2>
+                  <p class="text-gray-600 dark:text-gray-400 md:text-lg">
+                    Find answers to common questions about our QR code
+                    generator.
+                  </p>
+                </div>
+                <div class="flex flex-col gap-4">
+                  <details
+                    class="group rounded-lg border bg-background-light dark:bg-gray-900/50 p-4"
+                    open=""
+                  >
+                    <summary
+                      class="flex cursor-pointer list-none items-center justify-between font-semibold"
+                    >
+                      <span
+                        >What types of content can I encode in a QR code?</span
+                      >
+                      <span
+                        class="transition-transform duration-300 group-open:rotate-180"
+                      >
+                        <span class="material-symbols-outlined"
+                          >expand_more</span
+                        >
+                      </span>
+                    </summary>
+                    <div class="mt-4 text-gray-600 dark:text-gray-400">
+                      You can encode URLs, text, email addresses, phone numbers,
+                      Wi-Fi network details, and more. Our generator primarily
+                      focuses on URLs for simplicity, but advanced options are
+                      available.
+                    </div>
+                  </details>
+                  <details
+                    class="group rounded-lg border bg-background-light dark:bg-gray-900/50 p-4"
+                  >
+                    <summary
+                      class="flex cursor-pointer list-none items-center justify-between font-semibold"
+                    >
+                      <span>Are the generated QR codes free to use?</span>
+                      <span
+                        class="transition-transform duration-300 group-open:rotate-180"
+                      >
+                        <span class="material-symbols-outlined"
+                          >expand_more</span
+                        >
+                      </span>
+                    </summary>
+                    <div class="mt-4 text-gray-600 dark:text-gray-400">
+                      Yes, the basic QR codes you generate are completely free
+                      for both personal and commercial use and will never
+                      expire. Advanced features like analytics and dynamic codes
+                      may require a subscription.
+                    </div>
+                  </details>
+                  <details
+                    class="group rounded-lg border bg-background-light dark:bg-gray-900/50 p-4"
+                  >
+                    <summary
+                      class="flex cursor-pointer list-none items-center justify-between font-semibold"
+                    >
+                      <span>Can I customize the design of my QR code?</span>
+                      <span
+                        class="transition-transform duration-300 group-open:rotate-180"
+                      >
+                        <span class="material-symbols-outlined"
+                          >expand_more</span
+                        >
+                      </span>
+                    </summary>
+                    <div class="mt-4 text-gray-600 dark:text-gray-400">
+                      Absolutely! You can change the colors, add a logo to the
+                      center, and modify the shape of the QR code's elements to
+                      match your branding using our "Beautify" tool.
+                    </div>
+                  </details>
+                  <details
+                    class="group rounded-lg border bg-background-light dark:bg-gray-900/50 p-4"
+                  >
+                    <summary
+                      class="flex cursor-pointer list-none items-center justify-between font-semibold"
+                    >
+                      <span>In what formats can I download the QR code?</span>
+                      <span
+                        class="transition-transform duration-300 group-open:rotate-180"
+                      >
+                        <span class="material-symbols-outlined"
+                          >expand_more</span
+                        >
+                      </span>
+                    </summary>
+                    <div class="mt-4 text-gray-600 dark:text-gray-400">
+                      You can download your QR codes in high-resolution PNG and
+                      SVG formats, making them suitable for both web and print
+                      applications.
+                    </div>
+                  </details>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+      <footer
+        class="w-full bg-background-light dark:bg-gray-900/50 border-t border-gray-200 dark:border-gray-800"
+        id="about"
+      >
+        <div
+          class="container mx-auto flex flex-col items-center gap-6 px-4 py-10 text-center sm:flex-row sm:justify-between"
+        >
+          <p class="text-sm text-gray-600 dark:text-gray-400">
+            © 2024 QRCodeGen. All Rights Reserved.
+          </p>
+          <div
+            class="flex flex-wrap items-center justify-center gap-6"
+            id="contact"
+          >
+            <a
+              class="text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary"
+              href="#"
+              >About Us</a
+            >
+            <a
+              class="text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary"
+              href="#"
+              >Contact</a
+            >
+            <a
+              class="text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary"
+              href="#"
+              >Privacy Policy</a
+            >
+            <a
+              class="text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary"
+              href="#"
+              >Terms of Service</a
+            >
+          </div>
+        </div>
+      </footer>
+    </div>
+  </body>
+</html>

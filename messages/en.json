@@ -1,0 +1,151 @@
+{
+  "nav": {
+    "features": "Features",
+    "about": "About Us",
+    "contact": "Contact"
+  },
+  "header": {
+    "brand": "QRCodeGen"
+  },
+  "hero": {
+    "title": "Create Custom QR Codes in Seconds",
+    "subtitle": "Enter any URL to instantly generate a free, high-quality QR code for your business or personal use.",
+    "inputPlaceholder": "Enter your URL here...",
+    "generateButton": "Generate QR Code",
+    "generatingButton": "Creating...",
+    "generateAgainButton": "Generate Again"
+  },
+  "qr": {
+    "placeholderText": "Your QR code will appear here"
+  },
+  "buttons": {
+    "download": "Download",
+    "beautify": "Beautify"
+  },
+  "features": {
+    "title": "Our Features",
+    "heading": "Go Beyond the Basics",
+    "desc": "QRCodeGen offers a suite of powerful tools to make your QR codes more effective, engaging, and aligned with your brand. From design customization to performance tracking, we have you covered.",
+    "items": {
+      "dynamic": {
+        "title": "Dynamic QR Codes",
+        "desc": "Update the destination URL anytime without changing the QR code."
+      },
+      "branding": {
+        "title": "Custom Branding",
+        "desc": "Incorporate your logo and brand colors for a professional look."
+      },
+      "vector": {
+        "title": "Vector Formats",
+        "desc": "Download in SVG for high-quality printing at any scale."
+      },
+      "analytics": {
+        "title": "Scan Analytics",
+        "desc": "Track performance with detailed scan statistics."
+      }
+    }
+  },
+  "faq": {
+    "title": "Frequently Asked Questions",
+    "desc": "Find answers to common questions about our QR code generator.",
+    "q1": "What types of content can I encode in a QR code?",
+    "a1": "You can encode URLs, text, email addresses, phone numbers, Wi-Fi network details, and more. Our generator primarily focuses on URLs for simplicity, but advanced options are available.",
+    "q2": "Are the generated QR codes free to use?",
+    "a2": "Yes, the basic QR codes you generate are completely free for both personal and commercial use and will never expire. Advanced features like analytics and dynamic codes may require a subscription.",
+    "q3": "Can I customize the design of my QR code?",
+    "a3": "Absolutely! You can change the colors, add a logo to the center, and modify the shape of the QR code elements to match your branding using our \"Beautify\" tool.",
+    "q4": "In what formats can I download the QR code?",
+    "a4": "You can download your QR codes in high-resolution PNG and SVG formats, making them suitable for both web and print applications."
+  },
+  "footer": {
+    "copyright": "© 2024 QRCodeGen. All Rights Reserved.",
+    "about": "About Us",
+    "contact": "Contact",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service"
+  },
+  "modal": {
+    "ariaLabel": "QR Code Style Editor",
+    "closeAriaLabel": "Close",
+    "logo": {
+      "title": "Logo",
+      "upload": "Upload Logo",
+      "library": "Logo Library",
+      "chooseBuiltIn": "Choose a built-in logo"
+    },
+    "dots": {
+      "title": "QR Code Dots & Eyes",
+      "dotColor": "Dot Color",
+      "backgroundColor": "Background Color",
+      "dotShape": "Dot Shape",
+      "eyeShape": "Eye Shape",
+      "eyeColor": "Eye Color",
+      "custom": "Custom",
+      "options": {
+        "dotColor": {
+          "black": "Black"
+        },
+        "backgroundColor": {
+          "solid": "Solid"
+        },
+        "dotShape": {
+          "standard": "Standard"
+        },
+        "eyeShape": {
+          "square": "Square"
+        }
+      }
+    },
+    "more": {
+      "title": "More",
+      "quietZone": "Quiet Zone",
+      "errorCorrection": "Error Correction Level",
+      "qrVersion": "QR Code Version",
+      "labelSize": "Label Size",
+      "encodedContent": "Encoded Content",
+      "options": {
+        "quietZone": {
+          "twoBlocks": "2 blocks"
+        },
+        "errorCorrection": {
+          "fifteenPercent": "15%"
+        },
+        "qrVersion": {
+          "v3": "3 (29*29)"
+        },
+        "labelSize": {
+          "mm30": "30*30mm"
+        }
+      }
+    },
+    "addText": "+ Add Text",
+    "text": {
+      "label": "Text",
+      "colorLabel": "Color",
+      "disableOverlay": "Disable Text Overlay",
+      "colorAriaLabel": "Text color",
+      "default": "QR"
+    },
+    "preview": {
+      "currentStyle": "Current Style:",
+      "basicStyle": "Basic Style",
+      "saveStyleReturn": "Save Style & Return",
+      "clearStyle": "Clear Style",
+      "downloadAndPrint": "Download & Print"
+    }
+  },
+  "confirm": {
+    "unsavedTitle": "You have unsaved changes. Do you want to save them?",
+    "discard": "Don't Save",
+    "save": "Save"
+  },
+  "print": {
+    "title": "QR Print",
+    "qrCodeAlt": "QR code"
+  },
+  "language": {
+    "zh": "Chinese",
+    "en": "English"
+  }
+}
+

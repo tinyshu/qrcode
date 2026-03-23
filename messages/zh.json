@@ -1,0 +1,151 @@
+{
+  "nav": {
+    "features": "功能",
+    "about": "关于我们",
+    "contact": "联系"
+  },
+  "header": {
+    "brand": "QRCodeGen"
+  },
+  "hero": {
+    "title": "秒生成个性化二维码",
+    "subtitle": "输入任意网址，即刻为你的业务或个人用途生成免费、高质量的二维码。",
+    "inputPlaceholder": "请输入你的网址...",
+    "generateButton": "生成二维码",
+    "generatingButton": "在建一个",
+    "generateAgainButton": "再次生成"
+  },
+  "qr": {
+    "placeholderText": "你的二维码将显示在这里"
+  },
+  "buttons": {
+    "download": "下载",
+    "beautify": "美化"
+  },
+  "features": {
+    "title": "我们的功能",
+    "heading": "超越基础",
+    "desc": "QRCodeGen 提供一系列强大的工具，让你的二维码更有效、更有吸引力，并与品牌形象保持一致。无论是设计定制还是性能追踪，我们都为你准备好了。",
+    "items": {
+      "dynamic": {
+        "title": "动态二维码",
+        "desc": "随时更新目标链接，无需更改二维码。"
+      },
+      "branding": {
+        "title": "品牌定制",
+        "desc": "添加你的 Logo 与品牌配色，让效果更专业。"
+      },
+      "vector": {
+        "title": "矢量格式",
+        "desc": "支持 SVG 下载，便于任意尺寸高质量打印。"
+      },
+      "analytics": {
+        "title": "扫码统计",
+        "desc": "通过详细数据追踪扫码表现。"
+      }
+    }
+  },
+  "faq": {
+    "title": "常见问题",
+    "desc": "关于我们的二维码生成器，以下是你可能关心的内容。",
+    "q1": "二维码能编码哪些内容？",
+    "a1": "你可以编码网址、文本、邮箱、电话号码、Wi-Fi 网络信息等。本生成器主要聚焦网址以保证易用性，同时也提供更高级选项。",
+    "q2": "生成的二维码可以免费使用吗？",
+    "a2": "可以。你生成的基础二维码适用于个人与商业用途，且不会过期。诸如统计与动态码等高级功能可能需要订阅。",
+    "q3": "能自定义二维码样式吗？",
+    "a3": "当然可以！你可以修改颜色、在中心添加 Logo，并调整二维码元素形状，让你的二维码更贴合品牌。使用我们的“美化”工具即可。",
+    "q4": "支持哪些格式下载二维码？",
+    "a4": "你可以以高分辨率 PNG 和 SVG 格式下载二维码，使其适用于网页与打印场景。"
+  },
+  "footer": {
+    "copyright": "© 2024 QRCodeGen. 保留所有权利。",
+    "about": "关于我们",
+    "contact": "联系",
+    "privacy": "隐私政策",
+    "terms": "服务条款"
+  },
+  "modal": {
+    "ariaLabel": "二维码样式编辑器",
+    "closeAriaLabel": "关闭",
+    "logo": {
+      "title": "Logo",
+      "upload": "上传Logo",
+      "library": "Logo库",
+      "chooseBuiltIn": "选择内置Logo"
+    },
+    "dots": {
+      "title": "二维码点阵与眼睛",
+      "dotColor": "点颜色",
+      "backgroundColor": "背景颜色",
+      "dotShape": "点形状",
+      "eyeShape": "眼睛形状",
+      "eyeColor": "眼睛颜色",
+      "custom": "自定义",
+      "options": {
+        "dotColor": {
+          "black": "黑色"
+        },
+        "backgroundColor": {
+          "solid": "纯色"
+        },
+        "dotShape": {
+          "standard": "标准"
+        },
+        "eyeShape": {
+          "square": "方形"
+        }
+      }
+    },
+    "more": {
+      "title": "更多",
+      "quietZone": "留白（Quiet Zone）",
+      "errorCorrection": "纠错等级",
+      "qrVersion": "二维码版本",
+      "labelSize": "标签尺寸",
+      "encodedContent": "编码内容",
+      "options": {
+        "quietZone": {
+          "twoBlocks": "2 格"
+        },
+        "errorCorrection": {
+          "fifteenPercent": "15%"
+        },
+        "qrVersion": {
+          "v3": "3（29*29）"
+        },
+        "labelSize": {
+          "mm30": "30*30mm"
+        }
+      }
+    },
+    "addText": "+ 添加文本",
+    "text": {
+      "label": "文本",
+      "colorLabel": "颜色",
+      "disableOverlay": "禁用文字叠加",
+      "colorAriaLabel": "文本颜色",
+      "default": "QR"
+    },
+    "preview": {
+      "currentStyle": "当前样式：",
+      "basicStyle": "基础样式",
+      "saveStyleReturn": "保存并返回",
+      "clearStyle": "清空样式",
+      "downloadAndPrint": "下载并打印"
+    }
+  },
+  "confirm": {
+    "unsavedTitle": "你修改的内容未保存，是否保存？",
+    "discard": "不保存",
+    "save": "保存"
+  },
+  "print": {
+    "title": "二维码打印",
+    "qrCodeAlt": "二维码"
+  },
+  "language": {
+    "zh": "中文",
+    "en": "English"
+  }
+}
+
