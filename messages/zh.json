@@ -85,6 +85,10 @@
         "title": "码点形状",
         "closeAria": "关闭码点形状选择"
       },
+      "eyeShapePicker": {
+        "title": "码眼形状",
+        "closeAria": "关闭码眼形状选择"
+      },
       "colorPicker": {
         "solid": "纯色",
         "gradient": "渐变色",
@@ -108,7 +112,13 @@
           "extraRounded": "超圆角"
         },
         "eyeShape": {
-          "square": "方形"
+          "square": "方正",
+          "rounded": "圆角",
+          "extraRounded": "粗圆角",
+          "classyRounded": "中圆角",
+          "classy": "细圆角",
+          "dots": "点圆形",
+          "dot": "细圆形"
         }
       }
     },

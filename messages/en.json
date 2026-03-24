@@ -85,6 +85,10 @@
         "title": "QR dot shape",
         "closeAria": "Close dot shape picker"
       },
+      "eyeShapePicker": {
+        "title": "QR eye shape",
+        "closeAria": "Close eye shape picker"
+      },
       "colorPicker": {
         "solid": "Solid",
         "gradient": "Gradient",
@@ -108,7 +112,13 @@
           "extraRounded": "Extra rounded"
         },
         "eyeShape": {
-          "square": "Square"
+          "square": "Square",
+          "rounded": "Rounded",
+          "extraRounded": "Heavy rounded",
+          "classyRounded": "Medium rounded",
+          "classy": "Fine rounded",
+          "dots": "Bold circular",
+          "dot": "Fine circular"
         }
       }
     },

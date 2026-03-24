@@ -8,9 +8,12 @@ import QRCodeStyling from "qr-code-styling";
 import {
   buildQrStylingOptions,
   isQrDotShape,
+  isQrEyeShape,
   overlayTextExtension,
   QR_DOT_SHAPES,
+  QR_EYE_SHAPES,
   type QrDotShape,
+  type QrEyeShape,
   QrStyleState,
 } from "./qrStyle";
 
@@ -38,6 +41,32 @@ function dotShapeOptionLabel(t: (key: string) => string, shape: QrDotShape): str
       return shape;
   }
 }
+
+function cornersEyeShapeSrc(shape: QrEyeShape): string {
+  return `/corners/${shape}.png`;
+}
+
+function eyeShapeOptionLabel(t: (key: string) => string, shape: QrEyeShape): string {
+  switch (shape) {
+    case "square":
+      return t("modal.dots.options.eyeShape.square");
+    case "rounded":
+      return t("modal.dots.options.eyeShape.rounded");
+    case "extra-rounded":
+      return t("modal.dots.options.eyeShape.extraRounded");
+    case "classy-rounded":
+      return t("modal.dots.options.eyeShape.classyRounded");
+    case "classy":
+      return t("modal.dots.options.eyeShape.classy");
+    case "dots":
+      return t("modal.dots.options.eyeShape.dots");
+    case "dot":
+      return t("modal.dots.options.eyeShape.dot");
+    default:
+      return shape;
+  }
+}
+
 const PRESET_COLORS = [
   "#000000",
   "#22315d",
@@ -122,6 +151,9 @@ export default function QrBeautifyModal({
   const dotShapeFieldRef = useRef<HTMLDivElement | null>(null);
   const dotShapeTriggerRef = useRef<HTMLDivElement | null>(null);
   const dotShapePopoverRef = useRef<HTMLDivElement | null>(null);
+  const eyeShapeFieldRef = useRef<HTMLDivElement | null>(null);
+  const eyeShapeTriggerRef = useRef<HTMLDivElement | null>(null);
+  const eyeShapePopoverRef = useRef<HTMLDivElement | null>(null);
   const currentDotColor = draft.dotColor || "#000000";
   const currentBackgroundColor = draft.backgroundColor || "#ffffff";
 
@@ -141,6 +173,8 @@ export default function QrBeautifyModal({
   const [confirmUnsavedOpen, setConfirmUnsavedOpen] = useState(false);
   const [showDotShapeDialog, setShowDotShapeDialog] = useState(false);
   const [dotShapePopoverPos, setDotShapePopoverPos] = useState<{ top: number; left: number } | null>(null);
+  const [showEyeShapeDialog, setShowEyeShapeDialog] = useState(false);
+  const [eyeShapePopoverPos, setEyeShapePopoverPos] = useState<{ top: number; left: number } | null>(null);
 
   const hasUnsavedChanges = useMemo(() => {
     const a = draft;
@@ -182,6 +216,11 @@ export default function QrBeautifyModal({
 
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key !== "Escape") return;
+      if (showEyeShapeDialog) {
+        setShowEyeShapeDialog(false);
+        e.preventDefault();
+        return;
+      }
       if (showDotShapeDialog) {
         setShowDotShapeDialog(false);
         e.preventDefault();
@@ -191,12 +230,13 @@ export default function QrBeautifyModal({
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [open, onClose, showDotShapeDialog]);
+  }, [open, onClose, showDotShapeDialog, showEyeShapeDialog]);
 
   useEffect(() => {
     if (open) return;
     queueMicrotask(() => {
       setShowDotShapeDialog(false);
+      setShowEyeShapeDialog(false);
     });
   }, [open]);
 
@@ -229,7 +269,7 @@ export default function QrBeautifyModal({
   }, [open, showLogoLibrary]);
 
   useEffect(() => {
-    if (!showDotColorPicker && !showBgColorPicker && !showDotShapeDialog) return;
+    if (!showDotColorPicker && !showBgColorPicker && !showDotShapeDialog && !showEyeShapeDialog) return;
 
     const onDocMouseDown = (e: MouseEvent) => {
       const target = e.target as Node;
@@ -237,17 +277,20 @@ export default function QrBeautifyModal({
         dotColorFieldRef.current?.contains(target) || dotColorPopoverRef.current?.contains(target);
       const inBg =
         bgColorFieldRef.current?.contains(target) || bgColorPopoverRef.current?.contains(target);
-      const inShape =
+      const inDotShape =
         dotShapeFieldRef.current?.contains(target) || dotShapePopoverRef.current?.contains(target);
+      const inEyeShape =
+        eyeShapeFieldRef.current?.contains(target) || eyeShapePopoverRef.current?.contains(target);
 
       if (!inDot) setShowDotColorPicker(false);
       if (!inBg) setShowBgColorPicker(false);
-      if (!inShape) setShowDotShapeDialog(false);
+      if (!inDotShape) setShowDotShapeDialog(false);
+      if (!inEyeShape) setShowEyeShapeDialog(false);
     };
 
     document.addEventListener("mousedown", onDocMouseDown);
     return () => document.removeEventListener("mousedown", onDocMouseDown);
-  }, [showDotColorPicker, showBgColorPicker, showDotShapeDialog]);
+  }, [showDotColorPicker, showBgColorPicker, showDotShapeDialog, showEyeShapeDialog]);
 
   useLayoutEffect(() => {
     const updatePositions = () => {
@@ -269,11 +312,17 @@ export default function QrBeautifyModal({
       } else {
         setDotShapePopoverPos(null);
       }
+      if (showEyeShapeDialog && eyeShapeTriggerRef.current) {
+        const r = eyeShapeTriggerRef.current.getBoundingClientRect();
+        setEyeShapePopoverPos({ top: r.top + r.height / 2, left: r.right + 2 });
+      } else {
+        setEyeShapePopoverPos(null);
+      }
     };
 
     updatePositions();
 
-    if (!showDotColorPicker && !showBgColorPicker && !showDotShapeDialog) return;
+    if (!showDotColorPicker && !showBgColorPicker && !showDotShapeDialog && !showEyeShapeDialog) return;
 
     window.addEventListener("scroll", updatePositions, true);
     window.addEventListener("resize", updatePositions);
@@ -281,7 +330,7 @@ export default function QrBeautifyModal({
       window.removeEventListener("scroll", updatePositions, true);
       window.removeEventListener("resize", updatePositions);
     };
-  }, [showDotColorPicker, showBgColorPicker, showDotShapeDialog]);
+  }, [showDotColorPicker, showBgColorPicker, showDotShapeDialog, showEyeShapeDialog]);
 
   const onPickLogoFile = async (file: File) => {
     const dataUrl = await new Promise<string>((resolve, reject) => {
@@ -497,6 +546,67 @@ export default function QrBeautifyModal({
       document.body,
     );
 
+  const eyeShapeDialogPortal =
+    typeof document !== "undefined" &&
+    showEyeShapeDialog &&
+    eyeShapePopoverPos &&
+    createPortal(
+      <div
+        ref={eyeShapePopoverRef}
+        className="fixed z-[100] w-[300px] -translate-y-1/2 rounded-xl border border-gray-200 bg-white shadow-xl overflow-hidden"
+        style={{ top: eyeShapePopoverPos.top, left: eyeShapePopoverPos.left }}
+        role="dialog"
+        aria-modal="true"
+        aria-label={t("modal.dots.eyeShapePicker.title")}
+      >
+        <div className="flex items-center justify-between px-3 py-2.5 border-b border-gray-200 bg-gray-50/80">
+          <h4 className="text-sm font-semibold text-gray-900">{t("modal.dots.eyeShapePicker.title")}</h4>
+          <button
+            type="button"
+            className="rounded-md p-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-800"
+            aria-label={t("modal.dots.eyeShapePicker.closeAria")}
+            onClick={() => setShowEyeShapeDialog(false)}
+          >
+            <span className="material-symbols-outlined text-lg">close</span>
+          </button>
+        </div>
+        <div className="p-3 max-h-[min(70vh,420px)] overflow-y-auto">
+          <div className="grid grid-cols-3 gap-2">
+            {QR_EYE_SHAPES.map((shape) => (
+              <button
+                key={shape}
+                type="button"
+                className={`flex flex-col items-center gap-1.5 rounded-md border p-1.5 transition hover:bg-gray-50 ${
+                  draft.eyeShape === shape ? "border-primary bg-primary/5" : "border-gray-200 bg-white"
+                }`}
+                onClick={() => {
+                  setDraft((prev) => ({ ...prev, eyeShape: shape }));
+                  setShowEyeShapeDialog(false);
+                }}
+              >
+                <div
+                  className={`flex h-11 w-11 items-center justify-center rounded border bg-white ${
+                    draft.eyeShape === shape ? "ring-2 ring-primary border-primary" : "border-gray-200"
+                  }`}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={cornersEyeShapeSrc(shape)}
+                    alt=""
+                    className="h-9 w-9 object-contain"
+                  />
+                </div>
+                <span className="text-[11px] leading-tight text-center text-gray-600 px-0.5 line-clamp-2">
+                  {eyeShapeOptionLabel(t, shape)}
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>,
+      document.body,
+    );
+
   return (
     <>
     <div
@@ -586,6 +696,7 @@ export default function QrBeautifyModal({
                     onClick={() => {
                       setShowBgColorPicker(false);
                       setShowDotShapeDialog(false);
+                      setShowEyeShapeDialog(false);
                       setShowDotColorPicker((v) => !v);
                     }}
                   >
@@ -607,6 +718,7 @@ export default function QrBeautifyModal({
                     onClick={() => {
                       setShowDotColorPicker(false);
                       setShowDotShapeDialog(false);
+                      setShowEyeShapeDialog(false);
                       setShowBgColorPicker((v) => !v);
                     }}
                   >
@@ -628,6 +740,7 @@ export default function QrBeautifyModal({
                     onClick={() => {
                       setShowDotColorPicker(false);
                       setShowBgColorPicker(false);
+                      setShowEyeShapeDialog(false);
                       setShowDotShapeDialog(true);
                     }}
                   >
@@ -647,15 +760,33 @@ export default function QrBeautifyModal({
                 </div>
               </div>
 
-              <div className="flex items-center">
+              <div ref={eyeShapeFieldRef} className="flex items-center">
                 <label className="text-sm text-gray-600 w-24 shrink-0">{t("modal.dots.eyeShape")}</label>
-                <select
-                  className="w-full rounded-md border-gray-300 bg-white text-sm"
-                  value={draft.eyeShape}
-                  onChange={(e) => setDraft((prev) => ({ ...prev, eyeShape: e.target.value as QrStyleState["eyeShape"] }))}
-                >
-                  <option value="Square">{t("modal.dots.options.eyeShape.square")}</option>
-                </select>
+                <div ref={eyeShapeTriggerRef} className="relative w-[180px] shrink-0">
+                  <button
+                    type="button"
+                    className="w-full rounded-md border border-gray-300 bg-white text-sm px-3 py-2 flex items-center justify-between hover:bg-gray-50"
+                    onClick={() => {
+                      setShowDotColorPicker(false);
+                      setShowBgColorPicker(false);
+                      setShowDotShapeDialog(false);
+                      setShowEyeShapeDialog(true);
+                    }}
+                  >
+                    <span className="flex items-center gap-2 min-w-0">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={cornersEyeShapeSrc(isQrEyeShape(draft.eyeShape) ? draft.eyeShape : "square")}
+                        alt=""
+                        className="w-6 h-6 rounded border border-gray-200 object-contain shrink-0 bg-white"
+                      />
+                      <span className="truncate text-gray-800">
+                        {eyeShapeOptionLabel(t, isQrEyeShape(draft.eyeShape) ? draft.eyeShape : "square")}
+                      </span>
+                    </span>
+                    <span className="material-symbols-outlined text-base text-gray-500 shrink-0">expand_more</span>
+                  </button>
+                </div>
               </div>
 
               <div className="flex items-center col-span-2">
@@ -891,6 +1022,7 @@ export default function QrBeautifyModal({
     {dotColorPickerPortal || null}
     {bgColorPickerPortal || null}
     {dotShapeDialogPortal || null}
+    {eyeShapeDialogPortal || null}
     </>
   );
 }

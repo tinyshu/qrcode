@@ -1,4 +1,11 @@
-import type { DotType, ExtensionFunction, Options, TypeNumber } from "qr-code-styling";
+import type {
+  CornerDotType,
+  CornerSquareType,
+  DotType,
+  ExtensionFunction,
+  Options,
+  TypeNumber,
+} from "qr-code-styling";
 
 /** Matches `qr-code-styling` `dotsOptions.type` and filenames under `public/codepoing/*.png`. */
 export const QR_DOT_SHAPES = [
@@ -11,7 +18,19 @@ export const QR_DOT_SHAPES = [
 ] as const satisfies readonly DotType[];
 
 export type QrDotShape = (typeof QR_DOT_SHAPES)[number];
-export type QrEyeShape = "Square";
+
+/** Preset id matches `public/corners/{id}.png` and drives `cornersSquareOptions` + `cornersDotOptions`. */
+export const QR_EYE_SHAPES = [
+  "square",
+  "rounded",
+  "extra-rounded",
+  "classy-rounded",
+  "classy",
+  "dots",
+  "dot",
+] as const satisfies readonly (CornerSquareType & CornerDotType)[];
+
+export type QrEyeShape = (typeof QR_EYE_SHAPES)[number];
 export type QrBackgroundMode = "Solid" | "Custom";
 export type QrDotColorMode = "Black" | "Custom";
 export type QrEyeColorMode = "Custom";
@@ -55,7 +74,7 @@ export const DEFAULT_QR_STYLE: QrStyleState = {
   backgroundMode: "Solid",
   backgroundColor: "#ffffff",
   dotShape: "square",
-  eyeShape: "Square",
+  eyeShape: "square",
   eyeColorMode: "Custom",
   eyeColor: "#000000",
 
@@ -74,10 +93,20 @@ export function isQrDotShape(value: unknown): value is QrDotShape {
   return typeof value === "string" && (QR_DOT_SHAPES as readonly string[]).includes(value);
 }
 
-/** Migrate persisted state from older `Standard` or invalid values. */
+export function isQrEyeShape(value: unknown): value is QrEyeShape {
+  return typeof value === "string" && (QR_EYE_SHAPES as readonly string[]).includes(value);
+}
+
+/** Migrate persisted state from older `Standard` / `Square` or invalid values. */
 export function migrateQrStyleState(state: QrStyleState): QrStyleState {
-  if (isQrDotShape(state.dotShape)) return state;
-  return { ...state, dotShape: "square" };
+  let next = state;
+  if (!isQrDotShape(next.dotShape)) {
+    next = { ...next, dotShape: "square" };
+  }
+  if (!isQrEyeShape(next.eyeShape)) {
+    next = { ...next, eyeShape: "square" };
+  }
+  return next;
 }
 
 export function parseQrVersion(version: QrVersionMode): TypeNumber {
@@ -217,7 +246,9 @@ export function buildQrStylingOptionsFromWidth(state: QrStyleState, width: numbe
   };
 
   const dotsType: DotType = isQrDotShape(state.dotShape) ? state.dotShape : "square";
-  const cornersType = state.eyeShape === "Square" ? "square" : "square";
+  const eyeCornerType: CornerSquareType & CornerDotType = isQrEyeShape(state.eyeShape)
+    ? state.eyeShape
+    : "square";
 
   const options: QrBuildOptions = {
     type: "svg",
@@ -233,11 +264,11 @@ export function buildQrStylingOptionsFromWidth(state: QrStyleState, width: numbe
     },
     cornersSquareOptions: {
       color: eyeColor,
-      type: cornersType,
+      type: eyeCornerType,
     },
     cornersDotOptions: {
       color: eyeColor,
-      type: cornersType,
+      type: eyeCornerType,
     },
     backgroundOptions: {
       color: backgroundColor,
