@@ -71,10 +71,11 @@
       "title": "Logo",
       "upload": "Upload Logo",
       "library": "Logo Library",
-      "chooseBuiltIn": "Choose a built-in logo"
+      "chooseBuiltIn": "Choose a built-in logo",
+      "generalCategory": "General"
     },
     "dots": {
-      "title": "QR Code Dots & Eyes",
+      "title": "QR Dots & Eyes",
       "dotColor": "QR Color",
       "backgroundColor": "QR Background Color",
       "dotShape": "QR Dot Shape",
@@ -124,23 +125,25 @@
     },
     "more": {
       "title": "More",
-      "quietZone": "Quiet Zone",
-      "errorCorrection": "Error Correction Level",
-      "qrVersion": "QR Code Version",
-      "labelSize": "Label Size",
+      "quietZone": "Code Margin",
+      "errorCorrection": "Error Tolerance",
+      "qrVersion": "QR Version",
       "encodedContent": "Encoded Content",
       "options": {
         "quietZone": {
-          "twoBlocks": "2 blocks"
+          "twoBlocks": "2 blocks",
+          "oneBlock": "1 block",
+          "threeBlocks": "3 blocks",
+          "fourBlocks": "4 blocks"
         },
         "errorCorrection": {
-          "fifteenPercent": "15%"
+          "fifteenPercent": "15%",
+          "sevenPercent": "7%",
+          "twentyFivePercent": "25%",
+          "thirtyPercent": "30%"
         },
         "qrVersion": {
           "v3": "3 (29*29)"
-        },
-        "labelSize": {
-          "mm30": "30*30mm"
         }
       }
     },
@@ -174,4 +177,3 @@
     "en": "English"
   }
 }
-

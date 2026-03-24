@@ -14,9 +14,20 @@ import {
   DEFAULT_QR_STYLE,
   migrateQrStyleState,
   overlayTextExtension,
+  type QrBuildOptions,
   QrStyleState,
 } from "./qrStyle";
 import QrBeautifyModal from "./QrBeautifyModal";
+
+function withAutoVersionFallback(options: QrBuildOptions): QrBuildOptions {
+  return {
+    ...options,
+    qrOptions: {
+      ...options.qrOptions,
+      typeNumber: 0,
+    },
+  };
+}
 
 export default function QrCodeGenClient() {
   const t = useTranslations();
@@ -127,15 +138,30 @@ export default function QrCodeGenClient() {
 
     if (!qrInstanceRef.current) {
       el.innerHTML = "";
-      const qr = new QRCodeStyling(options);
-      qr.applyExtension(overlayTextExtension);
-      qr.append(el);
+      let qr: QRCodeStyling;
+      try {
+        qr = new QRCodeStyling(options);
+        qr.applyExtension(overlayTextExtension);
+        qr.append(el);
+      } catch {
+        qr = new QRCodeStyling(withAutoVersionFallback(options));
+        qr.applyExtension(overlayTextExtension);
+        qr.append(el);
+      }
       qrInstanceRef.current = qr;
       setIsGenerating(false);
       return;
     }
 
-    qrInstanceRef.current.update(options);
+    try {
+      qrInstanceRef.current.update(options);
+    } catch {
+      el.innerHTML = "";
+      const qr = new QRCodeStyling(withAutoVersionFallback(options));
+      qr.applyExtension(overlayTextExtension);
+      qr.append(el);
+      qrInstanceRef.current = qr;
+    }
     setIsGenerating(false);
   }, [activeStyle, hasGenerated]);
 
@@ -202,9 +228,16 @@ export default function QrCodeGenClient() {
     document.body.appendChild(tempWrap);
 
     try {
-      const qr = new QRCodeStyling(options);
-      qr.applyExtension(overlayTextExtension);
-      qr.append(tempWrap);
+      let qr: QRCodeStyling;
+      try {
+        qr = new QRCodeStyling(options);
+        qr.applyExtension(overlayTextExtension);
+        qr.append(tempWrap);
+      } catch {
+        qr = new QRCodeStyling(withAutoVersionFallback(options));
+        qr.applyExtension(overlayTextExtension);
+        qr.append(tempWrap);
+      }
 
       const raw = await qr.getRawData("png");
       if (!raw) return;
@@ -237,9 +270,16 @@ export default function QrCodeGenClient() {
     document.body.appendChild(tempWrap);
 
     try {
-      const qr = new QRCodeStyling(options);
-      qr.applyExtension(overlayTextExtension);
-      qr.append(tempWrap);
+      let qr: QRCodeStyling;
+      try {
+        qr = new QRCodeStyling(options);
+        qr.applyExtension(overlayTextExtension);
+        qr.append(tempWrap);
+      } catch {
+        qr = new QRCodeStyling(withAutoVersionFallback(options));
+        qr.applyExtension(overlayTextExtension);
+        qr.append(tempWrap);
+      }
 
       const raw = await qr.getRawData("png");
       if (!raw) return;

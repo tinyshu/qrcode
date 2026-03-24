@@ -12,6 +12,7 @@ import {
   overlayTextExtension,
   QR_DOT_SHAPES,
   QR_EYE_SHAPES,
+  type QrBuildOptions,
   type QrDotShape,
   type QrEyeShape,
   QrStyleState,
@@ -67,6 +68,16 @@ function eyeShapeOptionLabel(t: (key: string) => string, shape: QrEyeShape): str
   }
 }
 
+function withAutoVersionFallback(options: QrBuildOptions): QrBuildOptions {
+  return {
+    ...options,
+    qrOptions: {
+      ...options.qrOptions,
+      typeNumber: 0,
+    },
+  };
+}
+
 const PRESET_COLORS = [
   "#000000",
   "#22315d",
@@ -114,12 +125,16 @@ function QRPreview({ draft, containerRef }: { draft: QrStyleState; containerRef:
     el.innerHTML = "";
 
     const options = buildQrStylingOptions(draft, "preview");
-    const qr = new QRCodeStyling(options);
-
-    // Allow "Add Text" overlay.
-    qr.applyExtension(overlayTextExtension);
-
-    qr.append(el);
+    let qr: QRCodeStyling;
+    try {
+      qr = new QRCodeStyling(options);
+      qr.applyExtension(overlayTextExtension);
+      qr.append(el);
+    } catch {
+      qr = new QRCodeStyling(withAutoVersionFallback(options));
+      qr.applyExtension(overlayTextExtension);
+      qr.append(el);
+    }
     qrRef.current = qr;
 
     return () => {
@@ -141,6 +156,15 @@ export default function QrBeautifyModal({
   onDownloadAndPrint,
 }: Props) {
   const t = useTranslations();
+  const qrVersionOptions = useMemo(
+    () =>
+      Array.from({ length: 40 }, (_, i) => {
+        const v = i + 1;
+        const size = 21 + 4 * i;
+        return `${v} (${size}*${size})`;
+      }),
+    [],
+  );
   const modalPreviewRef = useRef<HTMLDivElement | null>(null);
   const dotColorFieldRef = useRef<HTMLDivElement | null>(null);
   const bgColorFieldRef = useRef<HTMLDivElement | null>(null);
@@ -154,6 +178,9 @@ export default function QrBeautifyModal({
   const eyeShapeFieldRef = useRef<HTMLDivElement | null>(null);
   const eyeShapeTriggerRef = useRef<HTMLDivElement | null>(null);
   const eyeShapePopoverRef = useRef<HTMLDivElement | null>(null);
+  const qrVersionFieldRef = useRef<HTMLDivElement | null>(null);
+  const qrVersionTriggerRef = useRef<HTMLButtonElement | null>(null);
+  const qrVersionPopoverRef = useRef<HTMLDivElement | null>(null);
   const currentDotColor = draft.dotColor || "#000000";
   const currentBackgroundColor = draft.backgroundColor || "#ffffff";
 
@@ -175,6 +202,8 @@ export default function QrBeautifyModal({
   const [dotShapePopoverPos, setDotShapePopoverPos] = useState<{ top: number; left: number } | null>(null);
   const [showEyeShapeDialog, setShowEyeShapeDialog] = useState(false);
   const [eyeShapePopoverPos, setEyeShapePopoverPos] = useState<{ top: number; left: number } | null>(null);
+  const [showQrVersionDialog, setShowQrVersionDialog] = useState(false);
+  const [qrVersionPopoverPos, setQrVersionPopoverPos] = useState<{ top: number; left: number } | null>(null);
 
   const hasUnsavedChanges = useMemo(() => {
     const a = draft;
@@ -190,7 +219,6 @@ export default function QrBeautifyModal({
       a.quietZone !== b.quietZone ||
       a.errorCorrection !== b.errorCorrection ||
       a.qrVersion !== b.qrVersion ||
-      a.labelSize !== b.labelSize ||
       a.encodedContent !== b.encodedContent ||
       a.customTextEnabled !== b.customTextEnabled ||
       a.customText !== b.customText ||
@@ -216,6 +244,16 @@ export default function QrBeautifyModal({
 
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key !== "Escape") return;
+      if (showLogoLibrary) {
+        setShowLogoLibrary(false);
+        e.preventDefault();
+        return;
+      }
+      if (showQrVersionDialog) {
+        setShowQrVersionDialog(false);
+        e.preventDefault();
+        return;
+      }
       if (showEyeShapeDialog) {
         setShowEyeShapeDialog(false);
         e.preventDefault();
@@ -230,13 +268,15 @@ export default function QrBeautifyModal({
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [open, onClose, showDotShapeDialog, showEyeShapeDialog]);
+  }, [open, onClose, showDotShapeDialog, showEyeShapeDialog, showLogoLibrary, showQrVersionDialog]);
 
   useEffect(() => {
     if (open) return;
     queueMicrotask(() => {
+      setShowLogoLibrary(false);
       setShowDotShapeDialog(false);
       setShowEyeShapeDialog(false);
+      setShowQrVersionDialog(false);
     });
   }, [open]);
 
@@ -269,7 +309,7 @@ export default function QrBeautifyModal({
   }, [open, showLogoLibrary]);
 
   useEffect(() => {
-    if (!showDotColorPicker && !showBgColorPicker && !showDotShapeDialog && !showEyeShapeDialog) return;
+    if (!showDotColorPicker && !showBgColorPicker && !showDotShapeDialog && !showEyeShapeDialog && !showQrVersionDialog) return;
 
     const onDocMouseDown = (e: MouseEvent) => {
       const target = e.target as Node;
@@ -281,16 +321,19 @@ export default function QrBeautifyModal({
         dotShapeFieldRef.current?.contains(target) || dotShapePopoverRef.current?.contains(target);
       const inEyeShape =
         eyeShapeFieldRef.current?.contains(target) || eyeShapePopoverRef.current?.contains(target);
+      const inQrVersion =
+        qrVersionFieldRef.current?.contains(target) || qrVersionPopoverRef.current?.contains(target);
 
       if (!inDot) setShowDotColorPicker(false);
       if (!inBg) setShowBgColorPicker(false);
       if (!inDotShape) setShowDotShapeDialog(false);
       if (!inEyeShape) setShowEyeShapeDialog(false);
+      if (!inQrVersion) setShowQrVersionDialog(false);
     };
 
     document.addEventListener("mousedown", onDocMouseDown);
     return () => document.removeEventListener("mousedown", onDocMouseDown);
-  }, [showDotColorPicker, showBgColorPicker, showDotShapeDialog, showEyeShapeDialog]);
+  }, [showDotColorPicker, showBgColorPicker, showDotShapeDialog, showEyeShapeDialog, showQrVersionDialog]);
 
   useLayoutEffect(() => {
     const updatePositions = () => {
@@ -318,11 +361,17 @@ export default function QrBeautifyModal({
       } else {
         setEyeShapePopoverPos(null);
       }
+      if (showQrVersionDialog && qrVersionTriggerRef.current) {
+        const r = qrVersionTriggerRef.current.getBoundingClientRect();
+        setQrVersionPopoverPos({ top: r.top + r.height / 2, left: r.right + 2 });
+      } else {
+        setQrVersionPopoverPos(null);
+      }
     };
 
     updatePositions();
 
-    if (!showDotColorPicker && !showBgColorPicker && !showDotShapeDialog && !showEyeShapeDialog) return;
+    if (!showDotColorPicker && !showBgColorPicker && !showDotShapeDialog && !showEyeShapeDialog && !showQrVersionDialog) return;
 
     window.addEventListener("scroll", updatePositions, true);
     window.addEventListener("resize", updatePositions);
@@ -330,7 +379,7 @@ export default function QrBeautifyModal({
       window.removeEventListener("scroll", updatePositions, true);
       window.removeEventListener("resize", updatePositions);
     };
-  }, [showDotColorPicker, showBgColorPicker, showDotShapeDialog, showEyeShapeDialog]);
+  }, [showDotColorPicker, showBgColorPicker, showDotShapeDialog, showEyeShapeDialog, showQrVersionDialog]);
 
   const onPickLogoFile = async (file: File) => {
     const dataUrl = await new Promise<string>((resolve, reject) => {
@@ -607,6 +656,117 @@ export default function QrBeautifyModal({
       document.body,
     );
 
+  const logoLibraryDialogPortal =
+    typeof document !== "undefined" &&
+    showLogoLibrary &&
+    createPortal(
+      <div
+        className="fixed inset-0 z-[120] bg-black/45 flex items-center justify-center p-4"
+        role="dialog"
+        aria-modal="true"
+        aria-label={t("modal.logo.chooseBuiltIn")}
+        onMouseDown={(e) => {
+          if (e.target === e.currentTarget) setShowLogoLibrary(false);
+        }}
+      >
+        <div
+          className="w-full max-w-2xl rounded-xl border border-gray-200 bg-white shadow-2xl overflow-hidden"
+          onMouseDown={(e) => e.stopPropagation()}
+        >
+          <div className="h-14 px-5 border-b border-gray-200 flex items-center justify-between">
+            <div className="text-lg font-semibold text-gray-900">{t("modal.logo.chooseBuiltIn")}</div>
+            <button
+              type="button"
+              className="rounded-md p-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-800"
+              aria-label={t("modal.closeAriaLabel")}
+              onClick={() => setShowLogoLibrary(false)}
+            >
+              <span className="material-symbols-outlined text-xl">close</span>
+            </button>
+          </div>
+          <div className="grid grid-cols-[132px_1fr] min-h-[360px] max-h-[70vh]">
+            <div className="border-r border-gray-200 bg-gray-50 p-3">
+              <button
+                type="button"
+                className="w-full rounded-md bg-green-50 text-green-700 font-semibold px-3 py-2 text-left"
+              >
+                {t("modal.logo.generalCategory")}
+                <span className="ml-1 text-sm text-green-700">({logoLibraryItems.length})</span>
+              </button>
+            </div>
+            <div className="p-4 overflow-y-auto">
+              {logoLibraryLoading ? (
+                <div className="text-sm text-gray-500">Loading...</div>
+              ) : (
+                <div className="flex flex-wrap justify-start gap-x-5 gap-y-4">
+                  {logoLibraryItems.map((item) => (
+                    <button
+                      key={item.name}
+                      type="button"
+                      className="flex w-[72px] shrink-0 flex-col items-center rounded-md p-1 transition-colors"
+                      onClick={() => {
+                        setDraft((prev) => ({ ...prev, logoImageSrc: item.src }));
+                        setShowLogoLibrary(false);
+                      }}
+                    >
+                      <div
+                        className={`mx-auto flex h-10 w-10 items-center justify-center rounded-md border bg-white ${
+                          draft.logoImageSrc === item.src
+                            ? "border-green-500 ring-1 ring-green-500"
+                            : "border-gray-200 hover:border-green-500"
+                        }`}
+                      >
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={item.src} alt={item.name} className="w-8 h-8 object-contain" />
+                      </div>
+                      <div className="mt-1 text-[11px] text-gray-600 truncate">{item.name}</div>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>,
+      document.body,
+    );
+
+  const qrVersionDialogPortal =
+    typeof document !== "undefined" &&
+    showQrVersionDialog &&
+    qrVersionPopoverPos &&
+    createPortal(
+      <div
+        ref={qrVersionPopoverRef}
+        className="fixed z-[100] w-[220px] -translate-y-1/2 rounded-xl border border-gray-200 bg-white shadow-xl overflow-hidden"
+        style={{ top: qrVersionPopoverPos.top, left: qrVersionPopoverPos.left }}
+        role="listbox"
+        aria-label={t("modal.more.qrVersion")}
+      >
+        <div className="max-h-[320px] overflow-y-auto py-1">
+          {qrVersionOptions.map((option) => {
+            const active = draft.qrVersion === option;
+            return (
+              <button
+                key={option}
+                type="button"
+                className={`w-full px-3 py-2 text-left text-sm ${
+                  active ? "bg-gray-100 font-semibold text-gray-900" : "text-gray-700 hover:bg-gray-50"
+                }`}
+                onClick={() => {
+                  setDraft((prev) => ({ ...prev, qrVersion: option }));
+                  setShowQrVersionDialog(false);
+                }}
+              >
+                {option}
+              </button>
+            );
+          })}
+        </div>
+      </div>,
+      document.body,
+    );
+
   return (
     <>
     <div
@@ -616,7 +776,7 @@ export default function QrBeautifyModal({
       aria-label={t("modal.ariaLabel")}
     >
       <div className="w-full max-w-[1440px] rounded-xl bg-background-light shadow-2xl flex overflow-hidden">
-        <div className="w-2/3 p-8 space-y-8 border-r border-gray-200 overflow-y-auto max-h-[90vh]">
+        <div className="min-w-0 w-1/2 py-8 pl-6 pr-5 space-y-8 border-r border-gray-200 overflow-y-auto max-h-[90vh]">
           <div className="flex items-center justify-between">
             <h3 className="text-2xl font-bold">{t("modal.ariaLabel")}</h3>
             <button
@@ -629,19 +789,19 @@ export default function QrBeautifyModal({
             </button>
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-3 max-w-[430px]">
             <h4 className="text-sm font-semibold text-gray-800">{t("modal.logo.title")}</h4>
-            <div className="flex gap-4">
+            <div className="flex flex-wrap gap-3">
               <button
                 type="button"
-                className="flex-1 rounded-md border border-gray-300 bg-white py-2 px-4 text-sm text-center justify-center items-center gap-2 hover:bg-gray-50"
+                className="w-[180px] h-12 rounded-md border border-gray-300 bg-white text-sm text-center justify-center items-center gap-2 hover:bg-gray-50"
                 onClick={() => logoInputRef.current?.click()}
               >
                 <span>{t("modal.logo.upload")}</span>
               </button>
               <button
                 type="button"
-                className="flex-1 rounded-md border border-gray-300 bg-white py-2 px-4 text-sm text-center justify-center items-center gap-2 hover:bg-gray-50"
+                className="w-[180px] h-12 rounded-md border border-gray-300 bg-white text-sm text-center justify-center items-center gap-2 hover:bg-gray-50"
                 onClick={() => setShowLogoLibrary((v) => !v)}
               >
                 <span>{t("modal.logo.library")}</span>
@@ -663,31 +823,12 @@ export default function QrBeautifyModal({
               }}
             />
 
-            {showLogoLibrary && (
-              <div className="pt-2">
-                <div className="text-xs text-gray-600 mb-2">{t("modal.logo.chooseBuiltIn")}</div>
-                <div className="grid grid-cols-4 gap-3">
-                  {logoLibraryItems.map((item) => (
-                    <button
-                      key={item.name}
-                      type="button"
-                      className="rounded-md border border-gray-200 bg-white p-2 hover:bg-gray-50"
-                      onClick={() => setDraft((prev) => ({ ...prev, logoImageSrc: item.src }))}
-                    >
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={item.src} alt={item.name} className="w-8 h-8 object-contain mx-auto" />
-                    </button>
-                  ))}
-                </div>
-                {logoLibraryLoading && <div className="text-xs text-gray-500 mt-2">Loading...</div>}
-              </div>
-            )}
           </div>
 
           <div className="space-y-4 border-t border-gray-200 pt-6">
             <h4 className="text-sm font-semibold text-gray-800">{t("modal.dots.title")}</h4>
-            <div className="grid grid-cols-2 gap-x-6 gap-y-4">
-              <div ref={dotColorFieldRef} className="flex items-center relative">
+            <div className="grid grid-cols-2 gap-x-2 gap-y-4 justify-items-start">
+              <div ref={dotColorFieldRef} className="flex items-center relative min-w-0">
                 <label className="text-sm text-gray-600 w-24 shrink-0">{t("modal.dots.dotColor")}</label>
                 <div ref={dotColorTriggerRef} className="relative w-[180px] shrink-0">
                   <button
@@ -709,7 +850,7 @@ export default function QrBeautifyModal({
                 </div>
               </div>
 
-              <div ref={bgColorFieldRef} className="flex items-center relative">
+              <div ref={bgColorFieldRef} className="flex items-center relative min-w-0">
                 <label className="text-sm text-gray-600 w-24 shrink-0">{t("modal.dots.backgroundColor")}</label>
                 <div ref={bgColorTriggerRef} className="relative w-[180px] shrink-0">
                   <button
@@ -731,7 +872,7 @@ export default function QrBeautifyModal({
                 </div>
               </div>
 
-              <div ref={dotShapeFieldRef} className="flex items-center">
+              <div ref={dotShapeFieldRef} className="flex items-center min-w-0">
                 <label className="text-sm text-gray-600 w-24 shrink-0">{t("modal.dots.dotShape")}</label>
                 <div ref={dotShapeTriggerRef} className="relative w-[180px] shrink-0">
                   <button
@@ -760,7 +901,7 @@ export default function QrBeautifyModal({
                 </div>
               </div>
 
-              <div ref={eyeShapeFieldRef} className="flex items-center">
+              <div ref={eyeShapeFieldRef} className="flex items-center min-w-0">
                 <label className="text-sm text-gray-600 w-24 shrink-0">{t("modal.dots.eyeShape")}</label>
                 <div ref={eyeShapeTriggerRef} className="relative w-[180px] shrink-0">
                   <button
@@ -816,64 +957,73 @@ export default function QrBeautifyModal({
 
           <div className="space-y-4 border-t border-gray-200 pt-6">
             <h4 className="text-sm font-semibold text-gray-800">{t("modal.more.title")}</h4>
-            <div className="grid grid-cols-2 gap-x-6 gap-y-4">
+            <div className="grid grid-cols-1 gap-y-4">
               <div className="flex items-center">
-                <label className="text-sm text-gray-600 w-24 shrink-0 flex items-center gap-1">
+                <label className="text-sm text-gray-600 w-28 shrink-0 flex items-center gap-1">
                   {t("modal.more.quietZone")} <span className="material-symbols-outlined text-xs">info</span>
                 </label>
-                <select
-                  className="w-full rounded-md border-gray-300 bg-white text-sm"
-                  value={draft.quietZone}
-                  onChange={(e) => setDraft((prev) => ({ ...prev, quietZone: e.target.value as QrStyleState["quietZone"] }))}
-                >
-                  <option value="2 blocks">{t("modal.more.options.quietZone.twoBlocks")}</option>
-                </select>
+                <div className="w-[140px] shrink-0">
+                  <select
+                    className="w-full h-12 rounded-lg border-gray-300 bg-white text-sm px-3"
+                    value={draft.quietZone}
+                    onChange={(e) => setDraft((prev) => ({ ...prev, quietZone: e.target.value as QrStyleState["quietZone"] }))}
+                  >
+                    <option value="1 blocks">{t("modal.more.options.quietZone.oneBlock")}</option>
+                    <option value="2 blocks">{t("modal.more.options.quietZone.twoBlocks")}</option>
+                    <option value="3 blocks">{t("modal.more.options.quietZone.threeBlocks")}</option>
+                    <option value="4 blocks">{t("modal.more.options.quietZone.fourBlocks")}</option>
+                  </select>
+                </div>
               </div>
 
               <div className="flex items-center">
-                <label className="text-sm text-gray-600 w-24 shrink-0 flex items-center gap-1">
+                <label className="text-sm text-gray-600 w-28 shrink-0 flex items-center gap-1">
                   {t("modal.more.errorCorrection")} <span className="material-symbols-outlined text-xs">info</span>
                 </label>
-                <select
-                  className="w-full rounded-md border-gray-300 bg-white text-sm"
-                  value={draft.errorCorrection}
-                  onChange={(e) => setDraft((prev) => ({ ...prev, errorCorrection: e.target.value as QrStyleState["errorCorrection"] }))}
-                >
-                  <option value="15%">{t("modal.more.options.errorCorrection.fifteenPercent")}</option>
-                </select>
+                <div className="w-[140px] shrink-0">
+                  <select
+                    className="w-full h-12 rounded-lg border-gray-300 bg-white text-sm px-3"
+                    value={draft.errorCorrection}
+                    onChange={(e) => setDraft((prev) => ({ ...prev, errorCorrection: e.target.value as QrStyleState["errorCorrection"] }))}
+                  >
+                    <option value="7%">{t("modal.more.options.errorCorrection.sevenPercent")}</option>
+                    <option value="15%">{t("modal.more.options.errorCorrection.fifteenPercent")}</option>
+                    <option value="25%">{t("modal.more.options.errorCorrection.twentyFivePercent")}</option>
+                    <option value="30%">{t("modal.more.options.errorCorrection.thirtyPercent")}</option>
+                  </select>
+                </div>
               </div>
 
               <div className="flex items-center">
-                <label className="text-sm text-gray-600 w-24 shrink-0 flex items-center gap-1">
+                <label className="text-sm text-gray-600 w-28 shrink-0 flex items-center gap-1">
                   {t("modal.more.qrVersion")} <span className="material-symbols-outlined text-xs">info</span>
                 </label>
-                <select
-                  className="w-full rounded-md border-gray-300 bg-white text-sm"
-                  value={draft.qrVersion}
-                  onChange={(e) => setDraft((prev) => ({ ...prev, qrVersion: e.target.value as QrStyleState["qrVersion"] }))}
-                >
-                  <option value="3 (29*29)">{t("modal.more.options.qrVersion.v3")}</option>
-                </select>
+                <div ref={qrVersionFieldRef} className="relative w-[140px] shrink-0">
+                  <button
+                    ref={qrVersionTriggerRef}
+                    type="button"
+                    className="w-full h-12 rounded-lg border border-gray-300 bg-white text-sm px-3 flex items-center justify-between hover:bg-gray-50"
+                    onClick={() => {
+                      setShowDotColorPicker(false);
+                      setShowBgColorPicker(false);
+                      setShowDotShapeDialog(false);
+                      setShowEyeShapeDialog(false);
+                      setShowQrVersionDialog((v) => !v);
+                    }}
+                  >
+                    <span className="truncate text-gray-800">{draft.qrVersion}</span>
+                    <span className="material-symbols-outlined text-base text-gray-500 shrink-0">expand_more</span>
+                  </button>
+                </div>
               </div>
 
-              <div className="flex items-center">
-                <label className="text-sm text-gray-600 w-24 shrink-0">{t("modal.more.labelSize")}</label>
-                <select
-                  className="w-full rounded-md border-gray-300 bg-white text-sm"
-                  value={draft.labelSize}
-                  onChange={(e) => setDraft((prev) => ({ ...prev, labelSize: e.target.value as QrStyleState["labelSize"] }))}
-                >
-                  <option value="30*30mm">{t("modal.more.options.labelSize.mm30")}</option>
-                </select>
-              </div>
-
-              <div className="flex items-start col-span-2">
+              <div className="flex items-start">
                 <label className="text-sm text-gray-600 w-24 shrink-0 pt-2.5">{t("modal.more.encodedContent")}</label>
-                <input
-                  className="w-full rounded-md border-gray-300 bg-gray-100 text-sm px-3 py-2"
-                  type="text"
+                <textarea
+                  className="w-[300px] max-w-full h-20 rounded-md border-gray-300 bg-gray-100 text-gray-500 text-sm px-3 py-2 cursor-not-allowed resize-none overflow-y-auto overflow-x-hidden whitespace-pre-wrap break-words"
                   value={draft.encodedContent}
-                  onChange={(e) => setDraft((prev) => ({ ...prev, encodedContent: e.target.value }))}
+                  readOnly
+                  wrap="soft"
                 />
               </div>
             </div>
@@ -929,7 +1079,7 @@ export default function QrBeautifyModal({
           </div>
         </div>
 
-        <div className="w-1/3 p-8 flex flex-col items-center justify-center bg-gray-100">
+        <div className="w-1/2 min-w-0 py-8 pl-5 pr-8 flex flex-col items-center justify-center bg-gray-100">
           <div className="flex flex-col items-center gap-6 w-full max-w-sm">
             <div className="text-center">
               <p className="text-sm text-gray-600">
@@ -1023,6 +1173,8 @@ export default function QrBeautifyModal({
     {bgColorPickerPortal || null}
     {dotShapeDialogPortal || null}
     {eyeShapeDialogPortal || null}
+    {logoLibraryDialogPortal || null}
+    {qrVersionDialogPortal || null}
     </>
   );
 }

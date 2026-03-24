@@ -71,10 +71,11 @@
       "title": "Logo",
       "upload": "上传Logo",
       "library": "Logo库",
-      "chooseBuiltIn": "选择内置Logo"
+      "chooseBuiltIn": "选择内置Logo",
+      "generalCategory": "通用"
     },
     "dots": {
-      "title": "二维码点阵与眼睛",
+      "title": "码点码眼",
       "dotColor": "码颜色",
       "backgroundColor": "码背景色",
       "dotShape": "码点形状",
@@ -124,23 +125,25 @@
     },
     "more": {
       "title": "更多",
-      "quietZone": "留白（Quiet Zone）",
-      "errorCorrection": "纠错等级",
-      "qrVersion": "二维码版本",
-      "labelSize": "标签尺寸",
+      "quietZone": "码边距",
+      "errorCorrection": "容错率",
+      "qrVersion": "码版本",
       "encodedContent": "编码内容",
       "options": {
         "quietZone": {
-          "twoBlocks": "2 格"
+          "oneBlock": "1个色块",
+          "twoBlocks": "2个色块",
+          "threeBlocks": "3个色块",
+          "fourBlocks": "4个色块"
         },
         "errorCorrection": {
-          "fifteenPercent": "15%"
+          "fifteenPercent": "15%",
+          "sevenPercent": "7%",
+          "twentyFivePercent": "25%",
+          "thirtyPercent": "30%"
         },
         "qrVersion": {
           "v3": "3（29*29）"
-        },
-        "labelSize": {
-          "mm30": "30*30mm"
         }
       }
     },
@@ -174,4 +177,3 @@
     "en": "English"
   }
 }
-

@@ -34,10 +34,9 @@ export type QrEyeShape = (typeof QR_EYE_SHAPES)[number];
 export type QrBackgroundMode = "Solid" | "Custom";
 export type QrDotColorMode = "Black" | "Custom";
 export type QrEyeColorMode = "Custom";
-export type QrQuietZoneMode = "2 blocks";
-export type QrErrorCorrectionMode = "15%";
-export type QrVersionMode = "3 (29*29)";
-export type QrLabelSizeMode = "30*30mm";
+export type QrQuietZoneMode = "1 blocks" | "2 blocks" | "3 blocks" | "4 blocks";
+export type QrErrorCorrectionMode = "7%" | "15%" | "25%" | "30%";
+export type QrVersionMode = string;
 
 export type QrStyleState = {
   // Logo
@@ -57,7 +56,6 @@ export type QrStyleState = {
   quietZone: QrQuietZoneMode;
   errorCorrection: QrErrorCorrectionMode;
   qrVersion: QrVersionMode;
-  labelSize: QrLabelSizeMode;
   encodedContent: string;
 
   // Add Text
@@ -79,9 +77,8 @@ export const DEFAULT_QR_STYLE: QrStyleState = {
   eyeColor: "#000000",
 
   quietZone: "2 blocks",
-  errorCorrection: "15%",
-  qrVersion: "3 (29*29)",
-  labelSize: "30*30mm",
+  errorCorrection: "30%",
+  qrVersion: "2 (25*25)",
   encodedContent: "",
 
   customTextEnabled: false,
@@ -112,28 +109,78 @@ export function migrateQrStyleState(state: QrStyleState): QrStyleState {
 export function parseQrVersion(version: QrVersionMode): TypeNumber {
   // "3 (29*29)" -> 3
   const match = version.match(/^(\d+)\s*\(/);
-  return (match ? Number(match[1]) : 3) as TypeNumber;
+  const parsed = match ? Number(match[1]) : 2;
+  const safe = Number.isFinite(parsed) ? Math.max(1, Math.min(40, parsed)) : 2;
+  return safe as TypeNumber;
 }
 
 export function parseErrorCorrection(ec: QrErrorCorrectionMode): "L" | "M" | "Q" | "H" {
   // 7%/15%/25%/30% correspond to L/M/Q/H.
   switch (ec) {
+    case "7%":
+      return "L";
+    case "25%":
+      return "Q";
+    case "30%":
+      return "H";
     case "15%":
     default:
       return "M";
   }
 }
 
+const QR_BYTE_CAPACITY_BY_VERSION: Record<number, Record<QrErrorCorrectionMode, number>> = {
+  1: { "7%": 17, "15%": 14, "25%": 11, "30%": 7 },
+  2: { "7%": 32, "15%": 26, "25%": 20, "30%": 14 },
+  3: { "7%": 53, "15%": 42, "25%": 32, "30%": 24 },
+  4: { "7%": 78, "15%": 62, "25%": 46, "30%": 34 },
+  5: { "7%": 106, "15%": 84, "25%": 60, "30%": 44 },
+  6: { "7%": 134, "15%": 106, "25%": 74, "30%": 58 },
+  7: { "7%": 154, "15%": 122, "25%": 86, "30%": 64 },
+  8: { "7%": 192, "15%": 152, "25%": 108, "30%": 84 },
+  9: { "7%": 230, "15%": 180, "25%": 130, "30%": 98 },
+  10: { "7%": 271, "15%": 213, "25%": 151, "30%": 119 },
+};
+
+function estimateContentBytes(data: string): number {
+  return new TextEncoder().encode(data).length;
+}
+
+function isComplexBackground(state: QrStyleState): boolean {
+  // Current UI only has solid color background; treat non-white custom background as "complex".
+  if (state.backgroundMode !== "Custom") return false;
+  const normalized = (state.backgroundColor || "#ffffff").trim().toLowerCase();
+  return normalized !== "#fff" && normalized !== "#ffffff";
+}
+
+/**
+ * Auto error-correction strategy:
+ * - No logo: prefer higher readability while keeping version small -> pick 25% when possible, else 15%.
+ * - With logo/complex background: prefer robustness -> pick 30% when possible, then 25%, else 15%.
+ */
+export function resolveAutoErrorCorrection(state: QrStyleState): QrErrorCorrectionMode {
+  const version = parseQrVersion(state.qrVersion);
+  const capacity = QR_BYTE_CAPACITY_BY_VERSION[version];
+  if (!capacity) return "15%";
+
+  const bytes = estimateContentBytes(state.encodedContent || "");
+  const hasLogo = Boolean((state.logoImageSrc || "").trim());
+  const robustPreferred = hasLogo || isComplexBackground(state);
+
+  if (robustPreferred) {
+    if (bytes <= capacity["30%"]) return "30%";
+    if (bytes <= capacity["25%"]) return "25%";
+    return "15%";
+  }
+
+  if (bytes <= capacity["25%"]) return "25%";
+  return "15%";
+}
+
 export function parseQuietZone(qz: QrQuietZoneMode): number {
   // "2 blocks" -> 2
   const match = qz.match(/^(\d+)\s+/);
   return match ? Number(match[1]) : 2;
-}
-
-export function parseLabelSizeMm(labelSize: QrLabelSizeMode): number {
-  // "30*30mm" -> 30
-  const match = labelSize.match(/^(\d+)\s*\*/);
-  return match ? Number(match[1]) : 30;
 }
 
 function parseBackgroundColor(state: QrStyleState): string {
@@ -166,7 +213,8 @@ export type QrBuildSizeMode = "preview" | "export";
 export function computeSizePx(state: QrStyleState, mode: QrBuildSizeMode): number {
   if (mode === "preview") return 224;
 
-  const mm = parseLabelSizeMm(state.labelSize);
+  // Label size option was removed; keep export size behavior stable.
+  const mm = 30;
   // Use 300 DPI for a reasonable "print size" mapping.
   const dpi = 300;
   const px = (mm / 25.4) * dpi;
@@ -227,6 +275,7 @@ export function buildQrStylingOptions(state: QrStyleState, sizeMode: QrBuildSize
 
 export function buildQrStylingOptionsFromWidth(state: QrStyleState, width: number): QrBuildOptions {
   const typeNumber = parseQrVersion(state.qrVersion);
+  // Honor the user's explicit selection in the "Error Tolerance" dropdown.
   const errorCorrectionLevel = parseErrorCorrection(state.errorCorrection);
   const moduleCount = parseQrModuleCount(typeNumber);
   const quietZoneBlocks = parseQuietZone(state.quietZone);
