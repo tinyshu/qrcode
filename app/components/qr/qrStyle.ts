@@ -2,8 +2,8 @@ import type { ExtensionFunction, Options, TypeNumber } from "qr-code-styling";
 
 export type QrDotShape = "Standard";
 export type QrEyeShape = "Square";
-export type QrBackgroundMode = "Solid";
-export type QrDotColorMode = "Black";
+export type QrBackgroundMode = "Solid" | "Custom";
+export type QrDotColorMode = "Black" | "Custom";
 export type QrEyeColorMode = "Custom";
 export type QrQuietZoneMode = "2 blocks";
 export type QrErrorCorrectionMode = "15%";
@@ -16,7 +16,9 @@ export type QrStyleState = {
 
   // Dots & Eyes
   dotColorMode: QrDotColorMode;
+  dotColor: string;
   backgroundMode: QrBackgroundMode;
+  backgroundColor: string;
   dotShape: QrDotShape;
   eyeShape: QrEyeShape;
   eyeColorMode: QrEyeColorMode;
@@ -39,7 +41,9 @@ export const DEFAULT_QR_STYLE: QrStyleState = {
   logoImageSrc: undefined,
 
   dotColorMode: "Black",
+  dotColor: "#000000",
   backgroundMode: "Solid",
+  backgroundColor: "#ffffff",
   dotShape: "Standard",
   eyeShape: "Square",
   eyeColorMode: "Custom",
@@ -84,8 +88,9 @@ export function parseLabelSizeMm(labelSize: QrLabelSizeMode): number {
 }
 
 function parseBackgroundColor(state: QrStyleState): string {
-  // Only "Solid" exists in the design.
   switch (state.backgroundMode) {
+    case "Custom":
+      return state.backgroundColor || "#ffffff";
     case "Solid":
     default:
       return "#ffffff";
@@ -94,6 +99,8 @@ function parseBackgroundColor(state: QrStyleState): string {
 
 function parseDotColor(state: QrStyleState): string {
   switch (state.dotColorMode) {
+    case "Custom":
+      return state.dotColor || "#000000";
     case "Black":
     default:
       return "#000000";

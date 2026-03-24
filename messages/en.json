@@ -75,12 +75,19 @@
     },
     "dots": {
       "title": "QR Code Dots & Eyes",
-      "dotColor": "Dot Color",
-      "backgroundColor": "Background Color",
-      "dotShape": "Dot Shape",
-      "eyeShape": "Eye Shape",
+      "dotColor": "QR Color",
+      "backgroundColor": "QR Background Color",
+      "dotShape": "QR Dot Shape",
+      "eyeShape": "QR Eye Shape",
       "eyeColor": "Eye Color",
       "custom": "Custom",
+      "colorPicker": {
+        "solid": "Solid",
+        "gradient": "Gradient",
+        "foreground": "Foreground",
+        "recent": "Recent",
+        "customColor": "Custom Color"
+      },
       "options": {
         "dotColor": {
           "black": "Black"

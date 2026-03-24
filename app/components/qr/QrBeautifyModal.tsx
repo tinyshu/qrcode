@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import {useTranslations} from "next-intl";
 import QRCodeStyling from "qr-code-styling";
 
@@ -11,6 +12,30 @@ import {
 } from "./qrStyle";
 
 type LogoItem = { name: string; src: string };
+const PRESET_COLORS = [
+  "#000000",
+  "#22315d",
+  "#2a4ca0",
+  "#3b3a95",
+  "#0f6cb0",
+  "#3f79ad",
+  "#536286",
+  "#7892a8",
+  "#1f5b3d",
+  "#0d7a76",
+  "#467f70",
+  "#526c70",
+  "#8f2731",
+  "#df8548",
+  "#6a3d24",
+  "#7a796e",
+  "#9a9a8a",
+  "#b1b2b9",
+  "#b7c1b6",
+  "#b8bdc6",
+  "#b4aeae",
+  "#d8d8d8",
+];
 
 type Props = {
   open: boolean;
@@ -62,6 +87,14 @@ export default function QrBeautifyModal({
 }: Props) {
   const t = useTranslations();
   const modalPreviewRef = useRef<HTMLDivElement | null>(null);
+  const dotColorFieldRef = useRef<HTMLDivElement | null>(null);
+  const bgColorFieldRef = useRef<HTMLDivElement | null>(null);
+  const dotColorTriggerRef = useRef<HTMLDivElement | null>(null);
+  const bgColorTriggerRef = useRef<HTMLDivElement | null>(null);
+  const dotColorPopoverRef = useRef<HTMLDivElement | null>(null);
+  const bgColorPopoverRef = useRef<HTMLDivElement | null>(null);
+  const currentDotColor = draft.dotColor || "#000000";
+  const currentBackgroundColor = draft.backgroundColor || "#ffffff";
 
   const [showLogoLibrary, setShowLogoLibrary] = useState(false);
   const [logoLibraryItems, setLogoLibraryItems] = useState<LogoItem[]>([]);
@@ -70,6 +103,12 @@ export default function QrBeautifyModal({
   const logoInputRef = useRef<HTMLInputElement | null>(null);
 
   const [showEyeColorPicker, setShowEyeColorPicker] = useState(false);
+  const [showDotColorPicker, setShowDotColorPicker] = useState(false);
+  const [showBgColorPicker, setShowBgColorPicker] = useState(false);
+  const [dotPopoverPos, setDotPopoverPos] = useState<{ top: number; left: number } | null>(null);
+  const [bgPopoverPos, setBgPopoverPos] = useState<{ top: number; left: number } | null>(null);
+  const [recentDotColors, setRecentDotColors] = useState<string[]>(["#9ea2a7", "#f04e5e", "#0f3f86", "#1f5b3d"]);
+  const [recentBgColors, setRecentBgColors] = useState<string[]>(["#ffffff", "#f7f7f7", "#f0f4ff", "#fff7e8"]);
   const [confirmUnsavedOpen, setConfirmUnsavedOpen] = useState(false);
 
   const hasUnsavedChanges = useMemo(() => {
@@ -95,6 +134,17 @@ export default function QrBeautifyModal({
   }, [draft, initialStyle]);
 
   const shouldRender = useMemo(() => open, [open]);
+
+  const pushRecentColor = (
+    setRecent: React.Dispatch<React.SetStateAction<string[]>>,
+    color: string,
+  ) => {
+    setRecent((prev) => {
+      const normalized = color.toLowerCase();
+      const filtered = prev.filter((c) => c.toLowerCase() !== normalized);
+      return [normalized, ...filtered].slice(0, 6);
+    });
+  };
 
   useEffect(() => {
     if (!open) return;
@@ -134,6 +184,52 @@ export default function QrBeautifyModal({
     };
   }, [open, showLogoLibrary]);
 
+  useEffect(() => {
+    if (!showDotColorPicker && !showBgColorPicker) return;
+
+    const onDocMouseDown = (e: MouseEvent) => {
+      const target = e.target as Node;
+      const inDot =
+        dotColorFieldRef.current?.contains(target) || dotColorPopoverRef.current?.contains(target);
+      const inBg =
+        bgColorFieldRef.current?.contains(target) || bgColorPopoverRef.current?.contains(target);
+
+      if (!inDot) setShowDotColorPicker(false);
+      if (!inBg) setShowBgColorPicker(false);
+    };
+
+    document.addEventListener("mousedown", onDocMouseDown);
+    return () => document.removeEventListener("mousedown", onDocMouseDown);
+  }, [showDotColorPicker, showBgColorPicker]);
+
+  useLayoutEffect(() => {
+    const updatePositions = () => {
+      if (showDotColorPicker && dotColorTriggerRef.current) {
+        const r = dotColorTriggerRef.current.getBoundingClientRect();
+        setDotPopoverPos({ top: r.top + r.height / 2, left: r.right + 2 });
+      } else {
+        setDotPopoverPos(null);
+      }
+      if (showBgColorPicker && bgColorTriggerRef.current) {
+        const r = bgColorTriggerRef.current.getBoundingClientRect();
+        setBgPopoverPos({ top: r.top + r.height / 2, left: r.right + 2 });
+      } else {
+        setBgPopoverPos(null);
+      }
+    };
+
+    updatePositions();
+
+    if (!showDotColorPicker && !showBgColorPicker) return;
+
+    window.addEventListener("scroll", updatePositions, true);
+    window.addEventListener("resize", updatePositions);
+    return () => {
+      window.removeEventListener("scroll", updatePositions, true);
+      window.removeEventListener("resize", updatePositions);
+    };
+  }, [showDotColorPicker, showBgColorPicker]);
+
   const onPickLogoFile = async (file: File) => {
     const dataUrl = await new Promise<string>((resolve, reject) => {
       const reader = new FileReader();
@@ -155,14 +251,147 @@ export default function QrBeautifyModal({
     onClose();
   };
 
+  const dotColorPickerPortal =
+    typeof document !== "undefined" &&
+    showDotColorPicker &&
+    dotPopoverPos &&
+    createPortal(
+      <div
+        ref={dotColorPopoverRef}
+        className="fixed z-[100] w-[280px] -translate-y-1/2 rounded-xl border border-gray-200 bg-white p-3 shadow-xl"
+        style={{ top: dotPopoverPos.top, left: dotPopoverPos.left }}
+        role="presentation"
+      >
+        <div className="text-sm font-medium mb-3">{t("modal.dots.colorPicker.solid")}</div>
+        <div className="grid grid-cols-6 gap-1.5">
+          {PRESET_COLORS.map((color) => (
+            <button
+              key={color}
+              type="button"
+              className={`h-7 rounded-md border ${currentDotColor.toLowerCase() === color.toLowerCase() ? "ring-2 ring-blue-400" : "border-gray-200"}`}
+              style={{ background: color }}
+              onClick={() => {
+                setDraft((prev) => ({
+                  ...prev,
+                  dotColorMode: "Custom",
+                  dotColor: color,
+                  eyeColorMode: "Custom",
+                  eyeColor: color,
+                }));
+                pushRecentColor(setRecentDotColors, color);
+              }}
+            />
+          ))}
+        </div>
+        <div className="mt-4 text-sm text-gray-500">{t("modal.dots.colorPicker.recent")}</div>
+        <div className="mt-2 grid grid-cols-6 gap-1.5">
+          {recentDotColors.slice(0, 6).map((color) => (
+            <button
+              key={color}
+              type="button"
+              className="h-7 rounded-md border border-gray-200"
+              style={{ background: color }}
+              onClick={() =>
+                setDraft((prev) => ({
+                  ...prev,
+                  dotColorMode: "Custom",
+                  dotColor: color,
+                  eyeColorMode: "Custom",
+                  eyeColor: color,
+                }))
+              }
+            />
+          ))}
+        </div>
+        <div className="mt-3 border-t border-gray-200 pt-2 flex items-center justify-between">
+          <span className="text-sm text-gray-600">{t("modal.dots.colorPicker.customColor")}</span>
+          <input
+            type="color"
+            value={currentDotColor}
+            onChange={(e) => {
+              const color = e.target.value;
+              setDraft((prev) => ({
+                ...prev,
+                dotColorMode: "Custom",
+                dotColor: color,
+                eyeColorMode: "Custom",
+                eyeColor: color,
+              }));
+              pushRecentColor(setRecentDotColors, color);
+            }}
+            className="w-10 h-10"
+            aria-label={t("modal.dots.dotColor")}
+          />
+        </div>
+      </div>,
+      document.body,
+    );
+
+  const bgColorPickerPortal =
+    typeof document !== "undefined" &&
+    showBgColorPicker &&
+    bgPopoverPos &&
+    createPortal(
+      <div
+        ref={bgColorPopoverRef}
+        className="fixed z-[100] w-[280px] -translate-y-1/2 rounded-xl border border-gray-200 bg-white p-3 shadow-xl"
+        style={{ top: bgPopoverPos.top, left: bgPopoverPos.left }}
+        role="presentation"
+      >
+        <div className="text-sm font-medium mb-3">{t("modal.dots.colorPicker.solid")}</div>
+        <div className="grid grid-cols-6 gap-1.5">
+          {PRESET_COLORS.map((color) => (
+            <button
+              key={color}
+              type="button"
+              className={`h-7 rounded-md border ${currentBackgroundColor.toLowerCase() === color.toLowerCase() ? "ring-2 ring-blue-400" : "border-gray-200"}`}
+              style={{ background: color }}
+              onClick={() => {
+                setDraft((prev) => ({ ...prev, backgroundMode: "Custom", backgroundColor: color }));
+                pushRecentColor(setRecentBgColors, color);
+              }}
+            />
+          ))}
+        </div>
+        <div className="mt-4 text-sm text-gray-500">{t("modal.dots.colorPicker.recent")}</div>
+        <div className="mt-2 grid grid-cols-6 gap-1.5">
+          {recentBgColors.slice(0, 6).map((color) => (
+            <button
+              key={color}
+              type="button"
+              className="h-7 rounded-md border border-gray-200"
+              style={{ background: color }}
+              onClick={() => setDraft((prev) => ({ ...prev, backgroundMode: "Custom", backgroundColor: color }))}
+            />
+          ))}
+        </div>
+        <div className="mt-3 border-t border-gray-200 pt-2 flex items-center justify-between">
+          <span className="text-sm text-gray-600">{t("modal.dots.colorPicker.customColor")}</span>
+          <input
+            type="color"
+            value={currentBackgroundColor}
+            onChange={(e) => {
+              const color = e.target.value;
+              setDraft((prev) => ({ ...prev, backgroundMode: "Custom", backgroundColor: color }));
+              pushRecentColor(setRecentBgColors, color);
+            }}
+            className="w-10 h-10"
+            aria-label={t("modal.dots.backgroundColor")}
+          />
+        </div>
+      </div>,
+      document.body,
+    );
+
   return (
+    <>
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
       role="dialog"
       aria-modal="true"
       aria-label={t("modal.ariaLabel")}
     >
-      <div className="w-full max-w-6xl rounded-xl bg-background-light shadow-2xl flex overflow-hidden">
+      <div className="w-full max-w-[1440px] rounded-xl bg-background-light shadow-2xl flex overflow-hidden">
         <div className="w-2/3 p-8 space-y-8 border-r border-gray-200 overflow-y-auto max-h-[90vh]">
           <div className="flex items-center justify-between">
             <h3 className="text-2xl font-bold">{t("modal.ariaLabel")}</h3>
@@ -234,26 +463,44 @@ export default function QrBeautifyModal({
           <div className="space-y-4 border-t border-gray-200 pt-6">
             <h4 className="text-sm font-semibold text-gray-800">{t("modal.dots.title")}</h4>
             <div className="grid grid-cols-2 gap-x-6 gap-y-4">
-              <div className="flex items-center">
+              <div ref={dotColorFieldRef} className="flex items-center relative">
                 <label className="text-sm text-gray-600 w-24 shrink-0">{t("modal.dots.dotColor")}</label>
-                <select
-                  className="w-full rounded-md border-gray-300 bg-white text-sm"
-                  value={draft.dotColorMode}
-                  onChange={(e) => setDraft((prev) => ({ ...prev, dotColorMode: e.target.value as QrStyleState["dotColorMode"] }))}
-                >
-                  <option value="Black">{t("modal.dots.options.dotColor.black")}</option>
-                </select>
+                <div ref={dotColorTriggerRef} className="relative w-[180px] shrink-0">
+                  <button
+                    type="button"
+                    className="w-full rounded-md border border-gray-300 bg-white text-sm px-3 py-2 flex items-center justify-between"
+                    onClick={() => {
+                      setShowBgColorPicker(false);
+                      setShowDotColorPicker((v) => !v);
+                    }}
+                  >
+                    <span className="flex items-center gap-2">
+                      <span className="inline-block w-6 h-6 rounded-md border border-gray-200" style={{ background: currentDotColor }} />
+                      <span>{t("modal.dots.options.backgroundColor.solid")}</span>
+                    </span>
+                    <span className="material-symbols-outlined text-base text-gray-500">expand_more</span>
+                  </button>
+                </div>
               </div>
 
-              <div className="flex items-center">
+              <div ref={bgColorFieldRef} className="flex items-center relative">
                 <label className="text-sm text-gray-600 w-24 shrink-0">{t("modal.dots.backgroundColor")}</label>
-                <select
-                  className="w-full rounded-md border-gray-300 bg-white text-sm"
-                  value={draft.backgroundMode}
-                  onChange={(e) => setDraft((prev) => ({ ...prev, backgroundMode: e.target.value as QrStyleState["backgroundMode"] }))}
-                >
-                  <option value="Solid">{t("modal.dots.options.backgroundColor.solid")}</option>
-                </select>
+                <div ref={bgColorTriggerRef} className="relative w-[180px] shrink-0">
+                  <button
+                    type="button"
+                    className="w-full rounded-md border border-gray-300 bg-white text-sm px-3 py-2 flex items-center justify-between"
+                    onClick={() => {
+                      setShowDotColorPicker(false);
+                      setShowBgColorPicker((v) => !v);
+                    }}
+                  >
+                    <span className="flex items-center gap-2">
+                      <span className="inline-block w-6 h-6 rounded-md border border-gray-200" style={{ background: currentBackgroundColor }} />
+                      <span>{t("modal.dots.options.backgroundColor.solid")}</span>
+                    </span>
+                    <span className="material-symbols-outlined text-base text-gray-500">expand_more</span>
+                  </button>
+                </div>
               </div>
 
               <div className="flex items-center">
@@ -508,6 +755,9 @@ export default function QrBeautifyModal({
         </div>
       )}
     </div>
+    {dotColorPickerPortal || null}
+    {bgColorPickerPortal || null}
+    </>
   );
 }
 
