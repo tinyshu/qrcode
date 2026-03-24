@@ -76,7 +76,7 @@ export const DEFAULT_QR_STYLE: QrStyleState = {
   eyeColorMode: "Custom",
   eyeColor: "#000000",
 
-  quietZone: "2 blocks",
+  quietZone: "1 blocks",
   errorCorrection: "30%",
   qrVersion: "2 (25*25)",
   encodedContent: "",
