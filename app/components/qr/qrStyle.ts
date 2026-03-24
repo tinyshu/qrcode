@@ -1,6 +1,16 @@
-import type { ExtensionFunction, Options, TypeNumber } from "qr-code-styling";
+import type { DotType, ExtensionFunction, Options, TypeNumber } from "qr-code-styling";
 
-export type QrDotShape = "Standard";
+/** Matches `qr-code-styling` `dotsOptions.type` and filenames under `public/codepoing/*.png`. */
+export const QR_DOT_SHAPES = [
+  "square",
+  "dots",
+  "rounded",
+  "classy",
+  "classy-rounded",
+  "extra-rounded",
+] as const satisfies readonly DotType[];
+
+export type QrDotShape = (typeof QR_DOT_SHAPES)[number];
 export type QrEyeShape = "Square";
 export type QrBackgroundMode = "Solid" | "Custom";
 export type QrDotColorMode = "Black" | "Custom";
@@ -44,7 +54,7 @@ export const DEFAULT_QR_STYLE: QrStyleState = {
   dotColor: "#000000",
   backgroundMode: "Solid",
   backgroundColor: "#ffffff",
-  dotShape: "Standard",
+  dotShape: "square",
   eyeShape: "Square",
   eyeColorMode: "Custom",
   eyeColor: "#000000",
@@ -59,6 +69,16 @@ export const DEFAULT_QR_STYLE: QrStyleState = {
   customText: "QR",
   customTextColor: "#111418",
 };
+
+export function isQrDotShape(value: unknown): value is QrDotShape {
+  return typeof value === "string" && (QR_DOT_SHAPES as readonly string[]).includes(value);
+}
+
+/** Migrate persisted state from older `Standard` or invalid values. */
+export function migrateQrStyleState(state: QrStyleState): QrStyleState {
+  if (isQrDotShape(state.dotShape)) return state;
+  return { ...state, dotShape: "square" };
+}
 
 export function parseQrVersion(version: QrVersionMode): TypeNumber {
   // "3 (29*29)" -> 3
@@ -196,7 +216,7 @@ export function buildQrStylingOptionsFromWidth(state: QrStyleState, width: numbe
     errorCorrectionLevel,
   };
 
-  const dotsType = state.dotShape === "Standard" ? "square" : "square";
+  const dotsType: DotType = isQrDotShape(state.dotShape) ? state.dotShape : "square";
   const cornersType = state.eyeShape === "Square" ? "square" : "square";
 
   const options: QrBuildOptions = {

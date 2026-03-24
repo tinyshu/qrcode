@@ -81,6 +81,10 @@
       "eyeShape": "QR Eye Shape",
       "eyeColor": "Eye Color",
       "custom": "Custom",
+      "shapePicker": {
+        "title": "QR dot shape",
+        "closeAria": "Close dot shape picker"
+      },
       "colorPicker": {
         "solid": "Solid",
         "gradient": "Gradient",
@@ -96,7 +100,12 @@
           "solid": "Solid"
         },
         "dotShape": {
-          "standard": "Standard"
+          "square": "Square",
+          "dots": "Dots",
+          "rounded": "Rounded",
+          "classy": "Classy",
+          "classyRounded": "Classy rounded",
+          "extraRounded": "Extra rounded"
         },
         "eyeShape": {
           "square": "Square"

@@ -81,6 +81,10 @@
       "eyeShape": "码眼形状",
       "eyeColor": "眼睛颜色",
       "custom": "自定义",
+      "shapePicker": {
+        "title": "码点形状",
+        "closeAria": "关闭码点形状选择"
+      },
       "colorPicker": {
         "solid": "纯色",
         "gradient": "渐变色",
@@ -96,7 +100,12 @@
           "solid": "纯色"
         },
         "dotShape": {
-          "standard": "标准"
+          "square": "普通",
+          "dots": "大圆点",
+          "rounded": "瓷砖",
+          "classy": "液化",
+          "classyRounded": "圆液化",
+          "extraRounded": "超圆角"
         },
         "eyeShape": {
           "square": "方形"

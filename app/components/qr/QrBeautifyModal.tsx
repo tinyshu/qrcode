@@ -7,11 +7,37 @@ import QRCodeStyling from "qr-code-styling";
 
 import {
   buildQrStylingOptions,
+  isQrDotShape,
   overlayTextExtension,
+  QR_DOT_SHAPES,
+  type QrDotShape,
   QrStyleState,
 } from "./qrStyle";
 
 type LogoItem = { name: string; src: string };
+
+function codepoingDotShapeSrc(shape: QrDotShape): string {
+  return `/codepoing/${shape}.png`;
+}
+
+function dotShapeOptionLabel(t: (key: string) => string, shape: QrDotShape): string {
+  switch (shape) {
+    case "square":
+      return t("modal.dots.options.dotShape.square");
+    case "dots":
+      return t("modal.dots.options.dotShape.dots");
+    case "rounded":
+      return t("modal.dots.options.dotShape.rounded");
+    case "classy":
+      return t("modal.dots.options.dotShape.classy");
+    case "classy-rounded":
+      return t("modal.dots.options.dotShape.classyRounded");
+    case "extra-rounded":
+      return t("modal.dots.options.dotShape.extraRounded");
+    default:
+      return shape;
+  }
+}
 const PRESET_COLORS = [
   "#000000",
   "#22315d",
@@ -93,6 +119,9 @@ export default function QrBeautifyModal({
   const bgColorTriggerRef = useRef<HTMLDivElement | null>(null);
   const dotColorPopoverRef = useRef<HTMLDivElement | null>(null);
   const bgColorPopoverRef = useRef<HTMLDivElement | null>(null);
+  const dotShapeFieldRef = useRef<HTMLDivElement | null>(null);
+  const dotShapeTriggerRef = useRef<HTMLDivElement | null>(null);
+  const dotShapePopoverRef = useRef<HTMLDivElement | null>(null);
   const currentDotColor = draft.dotColor || "#000000";
   const currentBackgroundColor = draft.backgroundColor || "#ffffff";
 
@@ -110,6 +139,8 @@ export default function QrBeautifyModal({
   const [recentDotColors, setRecentDotColors] = useState<string[]>(["#9ea2a7", "#f04e5e", "#0f3f86", "#1f5b3d"]);
   const [recentBgColors, setRecentBgColors] = useState<string[]>(["#ffffff", "#f7f7f7", "#f0f4ff", "#fff7e8"]);
   const [confirmUnsavedOpen, setConfirmUnsavedOpen] = useState(false);
+  const [showDotShapeDialog, setShowDotShapeDialog] = useState(false);
+  const [dotShapePopoverPos, setDotShapePopoverPos] = useState<{ top: number; left: number } | null>(null);
 
   const hasUnsavedChanges = useMemo(() => {
     const a = draft;
@@ -150,11 +181,24 @@ export default function QrBeautifyModal({
     if (!open) return;
 
     const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+      if (e.key !== "Escape") return;
+      if (showDotShapeDialog) {
+        setShowDotShapeDialog(false);
+        e.preventDefault();
+        return;
+      }
+      onClose();
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [open, onClose]);
+  }, [open, onClose, showDotShapeDialog]);
+
+  useEffect(() => {
+    if (open) return;
+    queueMicrotask(() => {
+      setShowDotShapeDialog(false);
+    });
+  }, [open]);
 
   useEffect(() => {
     if (!open || !showLogoLibrary) return;
@@ -185,7 +229,7 @@ export default function QrBeautifyModal({
   }, [open, showLogoLibrary]);
 
   useEffect(() => {
-    if (!showDotColorPicker && !showBgColorPicker) return;
+    if (!showDotColorPicker && !showBgColorPicker && !showDotShapeDialog) return;
 
     const onDocMouseDown = (e: MouseEvent) => {
       const target = e.target as Node;
@@ -193,14 +237,17 @@ export default function QrBeautifyModal({
         dotColorFieldRef.current?.contains(target) || dotColorPopoverRef.current?.contains(target);
       const inBg =
         bgColorFieldRef.current?.contains(target) || bgColorPopoverRef.current?.contains(target);
+      const inShape =
+        dotShapeFieldRef.current?.contains(target) || dotShapePopoverRef.current?.contains(target);
 
       if (!inDot) setShowDotColorPicker(false);
       if (!inBg) setShowBgColorPicker(false);
+      if (!inShape) setShowDotShapeDialog(false);
     };
 
     document.addEventListener("mousedown", onDocMouseDown);
     return () => document.removeEventListener("mousedown", onDocMouseDown);
-  }, [showDotColorPicker, showBgColorPicker]);
+  }, [showDotColorPicker, showBgColorPicker, showDotShapeDialog]);
 
   useLayoutEffect(() => {
     const updatePositions = () => {
@@ -216,11 +263,17 @@ export default function QrBeautifyModal({
       } else {
         setBgPopoverPos(null);
       }
+      if (showDotShapeDialog && dotShapeTriggerRef.current) {
+        const r = dotShapeTriggerRef.current.getBoundingClientRect();
+        setDotShapePopoverPos({ top: r.top + r.height / 2, left: r.right + 2 });
+      } else {
+        setDotShapePopoverPos(null);
+      }
     };
 
     updatePositions();
 
-    if (!showDotColorPicker && !showBgColorPicker) return;
+    if (!showDotColorPicker && !showBgColorPicker && !showDotShapeDialog) return;
 
     window.addEventListener("scroll", updatePositions, true);
     window.addEventListener("resize", updatePositions);
@@ -228,7 +281,7 @@ export default function QrBeautifyModal({
       window.removeEventListener("scroll", updatePositions, true);
       window.removeEventListener("resize", updatePositions);
     };
-  }, [showDotColorPicker, showBgColorPicker]);
+  }, [showDotColorPicker, showBgColorPicker, showDotShapeDialog]);
 
   const onPickLogoFile = async (file: File) => {
     const dataUrl = await new Promise<string>((resolve, reject) => {
@@ -383,6 +436,67 @@ export default function QrBeautifyModal({
       document.body,
     );
 
+  const dotShapeDialogPortal =
+    typeof document !== "undefined" &&
+    showDotShapeDialog &&
+    dotShapePopoverPos &&
+    createPortal(
+      <div
+        ref={dotShapePopoverRef}
+        className="fixed z-[100] w-[300px] -translate-y-1/2 rounded-xl border border-gray-200 bg-white shadow-xl overflow-hidden"
+        style={{ top: dotShapePopoverPos.top, left: dotShapePopoverPos.left }}
+        role="dialog"
+        aria-modal="true"
+        aria-label={t("modal.dots.shapePicker.title")}
+      >
+        <div className="flex items-center justify-between px-3 py-2.5 border-b border-gray-200 bg-gray-50/80">
+          <h4 className="text-sm font-semibold text-gray-900">{t("modal.dots.shapePicker.title")}</h4>
+          <button
+            type="button"
+            className="rounded-md p-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-800"
+            aria-label={t("modal.dots.shapePicker.closeAria")}
+            onClick={() => setShowDotShapeDialog(false)}
+          >
+            <span className="material-symbols-outlined text-lg">close</span>
+          </button>
+        </div>
+        <div className="p-3 max-h-[min(70vh,420px)] overflow-y-auto">
+          <div className="grid grid-cols-3 gap-2">
+            {QR_DOT_SHAPES.map((shape) => (
+              <button
+                key={shape}
+                type="button"
+                className={`flex flex-col items-center gap-1.5 rounded-md border p-1.5 transition hover:bg-gray-50 ${
+                  draft.dotShape === shape ? "border-primary bg-primary/5" : "border-gray-200 bg-white"
+                }`}
+                onClick={() => {
+                  setDraft((prev) => ({ ...prev, dotShape: shape }));
+                  setShowDotShapeDialog(false);
+                }}
+              >
+                <div
+                  className={`flex h-11 w-11 items-center justify-center rounded border bg-white ${
+                    draft.dotShape === shape ? "ring-2 ring-primary border-primary" : "border-gray-200"
+                  }`}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={codepoingDotShapeSrc(shape)}
+                    alt=""
+                    className="h-9 w-9 object-contain"
+                  />
+                </div>
+                <span className="text-[11px] leading-tight text-center text-gray-600 px-0.5 line-clamp-2">
+                  {dotShapeOptionLabel(t, shape)}
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>,
+      document.body,
+    );
+
   return (
     <>
     <div
@@ -471,6 +585,7 @@ export default function QrBeautifyModal({
                     className="w-full rounded-md border border-gray-300 bg-white text-sm px-3 py-2 flex items-center justify-between"
                     onClick={() => {
                       setShowBgColorPicker(false);
+                      setShowDotShapeDialog(false);
                       setShowDotColorPicker((v) => !v);
                     }}
                   >
@@ -491,6 +606,7 @@ export default function QrBeautifyModal({
                     className="w-full rounded-md border border-gray-300 bg-white text-sm px-3 py-2 flex items-center justify-between"
                     onClick={() => {
                       setShowDotColorPicker(false);
+                      setShowDotShapeDialog(false);
                       setShowBgColorPicker((v) => !v);
                     }}
                   >
@@ -503,15 +619,32 @@ export default function QrBeautifyModal({
                 </div>
               </div>
 
-              <div className="flex items-center">
+              <div ref={dotShapeFieldRef} className="flex items-center">
                 <label className="text-sm text-gray-600 w-24 shrink-0">{t("modal.dots.dotShape")}</label>
-                <select
-                  className="w-full rounded-md border-gray-300 bg-white text-sm"
-                  value={draft.dotShape}
-                  onChange={(e) => setDraft((prev) => ({ ...prev, dotShape: e.target.value as QrStyleState["dotShape"] }))}
-                >
-                  <option value="Standard">{t("modal.dots.options.dotShape.standard")}</option>
-                </select>
+                <div ref={dotShapeTriggerRef} className="relative w-[180px] shrink-0">
+                  <button
+                    type="button"
+                    className="w-full rounded-md border border-gray-300 bg-white text-sm px-3 py-2 flex items-center justify-between hover:bg-gray-50"
+                    onClick={() => {
+                      setShowDotColorPicker(false);
+                      setShowBgColorPicker(false);
+                      setShowDotShapeDialog(true);
+                    }}
+                  >
+                    <span className="flex items-center gap-2 min-w-0">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={codepoingDotShapeSrc(isQrDotShape(draft.dotShape) ? draft.dotShape : "square")}
+                        alt=""
+                        className="w-6 h-6 rounded border border-gray-200 object-contain shrink-0 bg-white"
+                      />
+                      <span className="truncate text-gray-800">
+                        {dotShapeOptionLabel(t, isQrDotShape(draft.dotShape) ? draft.dotShape : "square")}
+                      </span>
+                    </span>
+                    <span className="material-symbols-outlined text-base text-gray-500 shrink-0">expand_more</span>
+                  </button>
+                </div>
               </div>
 
               <div className="flex items-center">
@@ -757,6 +890,7 @@ export default function QrBeautifyModal({
     </div>
     {dotColorPickerPortal || null}
     {bgColorPickerPortal || null}
+    {dotShapeDialogPortal || null}
     </>
   );
 }

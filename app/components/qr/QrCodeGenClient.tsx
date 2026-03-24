@@ -12,6 +12,7 @@ import {
   buildQrStylingOptions,
   buildQrStylingOptionsFromWidth,
   DEFAULT_QR_STYLE,
+  migrateQrStyleState,
   overlayTextExtension,
   QrStyleState,
 } from "./qrStyle";
@@ -57,8 +58,8 @@ export default function QrCodeGenClient() {
 
       if (typeof parsed.inputUrl === "string") setInputUrl(parsed.inputUrl);
       if (typeof parsed.hasGenerated === "boolean") setHasGenerated(parsed.hasGenerated);
-      if (parsed.activeStyle) setActiveStyle(parsed.activeStyle);
-      if (parsed.draft) setDraft(parsed.draft);
+      if (parsed.activeStyle) setActiveStyle(migrateQrStyleState(parsed.activeStyle as QrStyleState));
+      if (parsed.draft) setDraft(migrateQrStyleState(parsed.draft as QrStyleState));
       if (typeof parsed.modalOpen === "boolean") setModalOpen(parsed.modalOpen);
 
       localStorage.removeItem(snapshotKey);
