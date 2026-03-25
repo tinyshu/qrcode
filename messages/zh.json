@@ -167,13 +167,19 @@
         }
       }
     },
-    "addText": "+ 添加文本",
-    "text": {
-      "label": "文本",
-      "colorLabel": "颜色",
-      "disableOverlay": "禁用文字叠加",
-      "colorAriaLabel": "文本颜色",
-      "default": "QR"
+    "labelTop": {
+      "add": "+ 添加码上方文字",
+      "fieldLabel": "码上方文字：",
+      "placeholder": "店铺或标题",
+      "fontNoto": "思源黑体",
+      "fontArial": "Arial",
+      "fontGeorgia": "Georgia",
+      "fontSystem": "系统默认",
+      "weightNormal": "常规",
+      "weightMedium": "中等",
+      "weightBold": "粗体",
+      "colorAria": "码上方文字颜色",
+      "removeAria": "删除码上方文字"
     },
     "preview": {
       "currentStyle": "当前样式：",

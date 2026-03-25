@@ -167,13 +167,19 @@
         }
       }
     },
-    "addText": "+ Add Text",
-    "text": {
-      "label": "Text",
-      "colorLabel": "Color",
-      "disableOverlay": "Disable Text Overlay",
-      "colorAriaLabel": "Text color",
-      "default": "QR"
+    "labelTop": {
+      "add": "+ Text above QR",
+      "fieldLabel": "Text above code:",
+      "placeholder": "Title or name",
+      "fontNoto": "Noto / Source Han",
+      "fontArial": "Arial",
+      "fontGeorgia": "Georgia",
+      "fontSystem": "System UI",
+      "weightNormal": "Regular",
+      "weightMedium": "Medium",
+      "weightBold": "Bold",
+      "colorAria": "Text color above QR",
+      "removeAria": "Remove text above QR"
     },
     "preview": {
       "currentStyle": "Current Style:",

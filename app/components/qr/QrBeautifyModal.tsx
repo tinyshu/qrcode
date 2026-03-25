@@ -12,9 +12,11 @@ import {
   overlayTextExtension,
   QR_DOT_SHAPES,
   QR_EYE_SHAPES,
+  sanitizeLabelTopUserInput,
   type QrBuildOptions,
   type QrDotShape,
   type QrEyeShape,
+  type QrLabelTopFontId,
   QrStyleState,
 } from "./qrStyle";
 
@@ -220,9 +222,12 @@ export default function QrBeautifyModal({
       a.errorCorrection !== b.errorCorrection ||
       a.qrVersion !== b.qrVersion ||
       a.encodedContent !== b.encodedContent ||
-      a.customTextEnabled !== b.customTextEnabled ||
-      a.customText !== b.customText ||
-      a.customTextColor !== b.customTextColor
+      a.labelTopEnabled !== b.labelTopEnabled ||
+      a.labelTopText !== b.labelTopText ||
+      a.labelTopFontId !== b.labelTopFontId ||
+      a.labelTopFontWeight !== b.labelTopFontWeight ||
+      a.labelTopFontSize !== b.labelTopFontSize ||
+      a.labelTopColor !== b.labelTopColor
     );
   }, [draft, initialStyle]);
 
@@ -1007,51 +1012,111 @@ export default function QrBeautifyModal({
             </div>
           </div>
 
-          <div className="border-t border-gray-200 pt-6">
-            <button
-              type="button"
-              className="flex items-center gap-2 text-primary hover:underline text-sm font-medium"
-              onClick={() =>
-                setDraft((prev) => ({
-                  ...prev,
-                  customTextEnabled: true,
-                  customText: prev.customText || t("modal.text.default"),
-                }))
-              }
-            >
-              <span className="material-symbols-outlined text-lg">add</span>
-              <span>{t("modal.addText")}</span>
-            </button>
-
-            {draft.customTextEnabled && (
-              <div className="mt-4 rounded-lg border border-gray-200 p-3">
-                <div className="flex items-center gap-3">
-                  <label className="text-sm text-gray-600 w-16 shrink-0">{t("modal.text.label")}</label>
-                  <input
-                    className="flex-1 rounded-md border-gray-300 bg-white text-sm px-3 py-2"
-                    type="text"
-                    value={draft.customText}
-                    onChange={(e) => setDraft((prev) => ({ ...prev, customText: e.target.value }))}
-                  />
+          <div className="border-t border-gray-200 pt-6 space-y-4">
+            {!draft.labelTopEnabled ? (
+              <button
+                type="button"
+                className="flex items-center gap-2 text-primary hover:underline text-sm font-medium"
+                onClick={() =>
+                  setDraft((prev) => ({
+                    ...prev,
+                    labelTopEnabled: true,
+                    labelTopText: "",
+                  }))
+                }
+              >
+                <span className="material-symbols-outlined text-lg">add</span>
+                <span>{t("modal.labelTop.add")}</span>
+              </button>
+            ) : (
+              <div className="rounded-lg border-2 border-orange-400 p-4 space-y-3">
+                <div className="flex flex-col gap-3 lg:flex-row lg:flex-wrap lg:items-end">
+                  <div className="flex flex-col gap-1 min-w-0 lg:max-w-[220px]">
+                    <span className="text-sm font-medium text-gray-800">{t("modal.labelTop.fieldLabel")}</span>
+                    <input
+                      className="w-full rounded-md border border-gray-300 bg-white text-sm px-3 py-2"
+                      type="text"
+                      value={draft.labelTopText}
+                      onChange={(e) =>
+                        setDraft((prev) => ({ ...prev, labelTopText: sanitizeLabelTopUserInput(e.target.value) }))
+                      }
+                      placeholder={t("modal.labelTop.placeholder")}
+                    />
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <select
+                      className="h-9 rounded-md border border-gray-300 bg-white text-sm px-2 min-w-[7rem]"
+                      value={draft.labelTopFontId}
+                      onChange={(e) =>
+                        setDraft((prev) => ({
+                          ...prev,
+                          labelTopFontId: e.target.value as QrLabelTopFontId,
+                        }))
+                      }
+                    >
+                      <option value="noto_sc">{t("modal.labelTop.fontNoto")}</option>
+                      <option value="arial">{t("modal.labelTop.fontArial")}</option>
+                      <option value="georgia">{t("modal.labelTop.fontGeorgia")}</option>
+                      <option value="system">{t("modal.labelTop.fontSystem")}</option>
+                    </select>
+                    <select
+                      className="h-9 rounded-md border border-gray-300 bg-white text-sm px-2 w-[5.5rem]"
+                      value={draft.labelTopFontWeight}
+                      onChange={(e) =>
+                        setDraft((prev) => ({
+                          ...prev,
+                          labelTopFontWeight: e.target.value as QrStyleState["labelTopFontWeight"],
+                        }))
+                      }
+                    >
+                      <option value="400">{t("modal.labelTop.weightNormal")}</option>
+                      <option value="500">{t("modal.labelTop.weightMedium")}</option>
+                      <option value="700">{t("modal.labelTop.weightBold")}</option>
+                    </select>
+                    <select
+                      className="h-9 rounded-md border border-gray-300 bg-white text-sm px-2 w-[4.5rem]"
+                      value={draft.labelTopFontSize}
+                      onChange={(e) =>
+                        setDraft((prev) => ({
+                          ...prev,
+                          labelTopFontSize: Number(e.target.value),
+                        }))
+                      }
+                    >
+                      {[16, 20, 24, 28, 32, 36, 40, 48].map((n) => (
+                        <option key={n} value={n}>
+                          {n}
+                        </option>
+                      ))}
+                    </select>
+                    <div className="flex items-center gap-1 border border-gray-300 rounded-md px-2 h-9 bg-white">
+                      <span className="text-sm font-semibold text-gray-700 border-b-2 border-current leading-none pb-0.5">
+                        A
+                      </span>
+                      <input
+                        type="color"
+                        value={draft.labelTopColor}
+                        onChange={(e) => setDraft((prev) => ({ ...prev, labelTopColor: e.target.value }))}
+                        className="h-7 w-8 cursor-pointer border-0 bg-transparent p-0"
+                        aria-label={t("modal.labelTop.colorAria")}
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-gray-300 text-gray-500 hover:bg-red-50 hover:text-red-600 hover:border-red-200"
+                      aria-label={t("modal.labelTop.removeAria")}
+                      onClick={() =>
+                        setDraft((prev) => ({
+                          ...prev,
+                          labelTopEnabled: false,
+                          labelTopText: "",
+                        }))
+                      }
+                    >
+                      <span className="material-symbols-outlined text-xl">delete</span>
+                    </button>
+                  </div>
                 </div>
-                <div className="flex items-center gap-3 mt-3">
-                  <label className="text-sm text-gray-600 w-16 shrink-0">{t("modal.text.colorLabel")}</label>
-                  <input
-                    type="color"
-                    value={draft.customTextColor}
-                    onChange={(e) => setDraft((prev) => ({ ...prev, customTextColor: e.target.value }))}
-                    className="w-10 h-10"
-                    aria-label={t("modal.text.colorAriaLabel")}
-                  />
-                  <span className="text-xs text-gray-600">{draft.customTextColor}</span>
-                </div>
-                <button
-                  type="button"
-                  className="mt-3 text-sm text-gray-600 hover:text-primary"
-                  onClick={() => setDraft((prev) => ({ ...prev, customTextEnabled: false }))}
-                >
-                  {t("modal.text.disableOverlay")}
-                </button>
               </div>
             )}
           </div>
@@ -1068,8 +1133,11 @@ export default function QrBeautifyModal({
               </p>
             </div>
 
-            <div className="w-64 h-64 p-4 bg-white rounded-lg shadow-md flex items-center justify-center">
-              <div ref={modalPreviewRef} className="w-full h-full flex items-center justify-center" />
+            <div className="w-64 max-w-full min-h-[192px] overflow-visible p-4 bg-white rounded-lg shadow-md flex items-start justify-center">
+              <div
+                ref={modalPreviewRef}
+                className="w-full flex items-start justify-center [&_svg]:max-w-full [&_svg]:h-auto"
+              />
             </div>
 
             <QRPreview draft={draft} containerRef={modalPreviewRef} />

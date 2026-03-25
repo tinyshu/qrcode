@@ -11,6 +11,7 @@ import {
   buildPlainQrStylingOptionsFromWidth,
   buildQrStylingOptionsFromWidth,
   overlayTextExtension,
+  qrInstanceToPngBlob,
   withPlainQrAutoVersion,
   type QrBuildOptions,
   type QrStyleState,
@@ -88,10 +89,8 @@ async function exportStyledPng(state: QrStyleState, pixelSize: number) {
       qr.applyExtension(overlayTextExtension);
       qr.append(tempWrap);
     }
-    const raw = await qr.getRawData("png");
-    if (!raw) return;
-    const blob =
-      raw instanceof Blob ? raw : new Blob([raw as unknown as BlobPart], { type: "image/png" });
+    const blob = await qrInstanceToPngBlob(qr);
+    if (!blob) return;
     const name = `${buildDownloadFilename(state.encodedContent)}.png`;
     await triggerDownload(blob, name);
   } finally {

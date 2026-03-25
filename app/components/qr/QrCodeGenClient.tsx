@@ -14,6 +14,7 @@ import {
   DEFAULT_QR_STYLE,
   migrateQrStyleState,
   overlayTextExtension,
+  qrInstanceToPngBlob,
   type QrBuildOptions,
   QrStyleState,
 } from "./qrStyle";
@@ -241,11 +242,9 @@ export default function QrCodeGenClient() {
         qr.append(tempWrap);
       }
 
-      const raw = await qr.getRawData("png");
-      if (!raw) return;
+      const blob = await qrInstanceToPngBlob(qr);
+      if (!blob) return;
 
-      const blob =
-        raw instanceof Blob ? raw : new Blob([raw as unknown as BlobPart], { type: "image/png" });
       const url = URL.createObjectURL(blob);
 
       const a = document.createElement("a");
@@ -283,11 +282,9 @@ export default function QrCodeGenClient() {
         qr.append(tempWrap);
       }
 
-      const raw = await qr.getRawData("png");
-      if (!raw) return;
+      const blob = await qrInstanceToPngBlob(qr);
+      if (!blob) return;
 
-      const blob =
-        raw instanceof Blob ? raw : new Blob([raw as unknown as BlobPart], { type: "image/png" });
       const url = URL.createObjectURL(blob);
 
       const win = window.open("", "_blank");
@@ -421,14 +418,18 @@ export default function QrCodeGenClient() {
               </div>
 
               <div className="flex flex-col items-center justify-center gap-6 rounded-xl bg-white p-8 shadow-lg border border-gray-200">
-                <div className="flex h-64 w-64 items-center justify-center rounded-lg bg-gray-100">
-                  <div className="w-full h-full flex items-center justify-center">
+                <div className="flex w-64 max-w-full min-h-[192px] items-start justify-center overflow-visible rounded-lg bg-gray-100 py-3 px-2">
+                  <div className="flex w-full min-w-0 items-start justify-center">
                     <div
                       ref={mainQrContainerRef}
-                      className={hasGenerated ? "w-full h-full flex items-center justify-center" : "hidden"}
+                      className={
+                        hasGenerated
+                          ? "w-full flex items-start justify-center [&_svg]:max-w-full [&_svg]:max-h-[min(60vh,400px)] [&_svg]:h-auto"
+                          : "hidden"
+                      }
                     />
                     {!hasGenerated && (
-                      <div className="flex h-full w-full items-center justify-center" aria-hidden>
+                      <div className="flex min-h-[168px] w-full items-center justify-center" aria-hidden>
                         <Image
                           src="/qr-placeholder.png"
                           alt=""
