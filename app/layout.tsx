@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Noto_Sans_SC, Space_Grotesk } from "next/font/google";
+import { Geist, Geist_Mono, Inter, Noto_Sans_SC, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -17,7 +17,15 @@ const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
 });
 
-/** 思源黑体同源（Google Noto Sans SC），用于首页主标题 */
+/** 首页主标题拉丁字重：Inter Medium / SemiBold */
+const inter = Inter({
+  variable: "--font-inter",
+  subsets: ["latin"],
+  weight: ["500", "600"],
+  display: "swap",
+});
+
+/** 思源黑体同源（Google Noto Sans SC），用于首页主标题中文回退 */
 const notoSansSC = Noto_Sans_SC({
   variable: "--font-noto-sc",
   subsets: ["latin"],
@@ -60,7 +68,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${spaceGrotesk.variable} ${notoSansSC.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${spaceGrotesk.variable} ${inter.variable} ${notoSansSC.variable} antialiased`}
       >
         {children}
       </body>

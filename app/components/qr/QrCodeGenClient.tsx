@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import dynamic from "next/dynamic";
 import React, { useEffect, useRef, useState } from "react";
 import {useTranslations} from "next-intl";
 import {useLocale} from "next-intl";
@@ -18,8 +19,9 @@ import {
   type QrBuildOptions,
   QrStyleState,
 } from "./qrStyle";
-import OtherFormatsModal from "./OtherFormatsModal";
 import QrBeautifyModal from "./QrBeautifyModal";
+
+const OtherFormatsModal = dynamic(() => import("./OtherFormatsModal"), { ssr: false });
 
 function withAutoVersionFallback(options: QrBuildOptions): QrBuildOptions {
   return {
@@ -36,6 +38,7 @@ export default function QrCodeGenClient() {
   const locale = useLocale();
   const pathname = usePathname();
   const router = useRouter();
+  const heroTitle = t("hero.title");
   const [inputUrl, setInputUrl] = useState("");
 
   const [hasGenerated, setHasGenerated] = useState(false);
@@ -360,44 +363,69 @@ export default function QrCodeGenClient() {
         <section className="w-full py-20 lg:py-32">
           <div className="container mx-auto px-4">
             <div className="grid gap-12 lg:grid-cols-2 lg:gap-16">
-              <div className="flex flex-col justify-center gap-8">
-                <div className="flex flex-col gap-4 text-left">
-                  <h1 className="font-hero-title text-4xl font-bold [letter-spacing:1.5px] sm:text-5xl xl:text-6xl text-[#111418]">
-                    {t("hero.title")}
+              <div className="flex flex-col justify-center gap-6">
+                <div className="flex flex-col gap-3 text-left max-w-lg">
+                  <h1
+                    className={`font-hero-title text-3xl leading-tight [letter-spacing:1.5px] sm:text-4xl xl:text-5xl ${
+                      locale === "zh" ? "font-medium" : "font-semibold"
+                    }`}
+                  >
+                    <span className="text-[#111418] [text-shadow:0_2px_4px_rgba(0,0,0,0.08)]">
+                      {heroTitle}
+                    </span>
                   </h1>
-                  <p className="max-w-[600px] text-gray-600 md:text-xl">
-                    {t("hero.subtitle")}
-                  </p>
+                  <div className="flex flex-col gap-2.5 text-sm text-gray-500 md:text-[15px] md:leading-relaxed">
+                    {([1, 2] as const).map((n) => (
+                      <div key={n} className="flex items-start gap-2.5">
+                        <span className="mt-0.5 shrink-0 text-base leading-none md:text-lg" aria-hidden>
+                          {t(`hero.subtitle${n}.icon`)}
+                        </span>
+                        <p className="min-w-0 leading-snug">
+                          <span className="font-medium text-gray-700">{t(`hero.subtitle${n}.lead`)}</span>
+                          <span className="mx-2 text-gray-300 select-none" aria-hidden>
+                            |
+                          </span>
+                          <span className="text-gray-500">{t(`hero.subtitle${n}.detail`)}</span>
+                        </p>
+                      </div>
+                    ))}
+                  </div>
                 </div>
 
-                <div className="flex w-full max-w-lg flex-col gap-4">
+                <div className="flex w-full max-w-lg flex-col gap-3">
                   <label className="flex flex-col w-full">
                     <div
-                      className={`flex w-full flex-none items-stretch rounded-xl min-h-[180px] max-h-[640px] shadow-sm border border-gray-200 resize-y overflow-auto focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2 focus-within:ring-offset-background-light ${
+                      className={`flex h-24 w-full flex-none items-stretch overflow-hidden resize-none rounded-xl border border-gray-200 shadow-md focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2 focus-within:ring-offset-background-light ${
                         hasGenerated ? "bg-gray-100" : "bg-white"
                       }`}
                     >
-                      <div className="text-gray-500 flex h-full min-h-[180px] shrink-0 items-center justify-center pl-4">
-                        <span className="material-symbols-outlined">link</span>
+                      <div className="text-gray-500 flex h-full shrink-0 items-center justify-center pl-4 pr-1">
+                        <span className="material-symbols-outlined text-xl">link</span>
                       </div>
-                      <textarea
-                        className={`box-border min-h-[180px] w-full min-w-0 flex-1 resize-none overflow-y-auto overflow-x-hidden whitespace-pre-wrap break-all py-3 ${
-                          hasGenerated ? "rounded-none" : "rounded-xl"
-                        } text-base font-normal leading-normal border-none px-4 pr-3 focus:outline-none focus:ring-0 ${
-                          hasGenerated
-                            ? "bg-gray-100 text-gray-500 placeholder:text-gray-400 cursor-not-allowed"
-                            : "text-[#111418] placeholder:text-gray-500 bg-transparent"
-                        }`}
-                        placeholder={t("hero.inputPlaceholder")}
-                        value={inputUrl}
-                        readOnly={hasGenerated}
-                        rows={6}
-                        wrap="soft"
-                        onChange={(e) => {
-                          if (hasGenerated) return;
-                          setInputUrl(e.target.value);
-                        }}
-                      />
+                      {hasGenerated ? (
+                        <textarea
+                          className="box-border h-full min-h-0 min-w-0 flex-1 resize-none overflow-y-auto overflow-x-hidden whitespace-pre-wrap break-words rounded-r-xl border-none bg-gray-100 py-2.5 pl-2 pr-3 text-base font-normal leading-snug text-gray-500 placeholder:text-gray-400 focus:outline-none focus:ring-0 cursor-not-allowed"
+                          placeholder={t("hero.inputPlaceholder")}
+                          value={inputUrl}
+                          readOnly
+                          rows={3}
+                          wrap="soft"
+                          aria-label={t("hero.inputPlaceholder")}
+                        />
+                      ) : (
+                        <textarea
+                          inputMode="url"
+                          autoComplete="url"
+                          className="box-border h-full min-h-0 min-w-0 flex-1 resize-none overflow-y-auto overflow-x-hidden whitespace-pre-wrap break-words rounded-r-xl border-none bg-transparent py-2.5 pl-2 pr-3 text-base font-normal leading-snug text-[#111418] placeholder:text-gray-500 focus:outline-none focus:ring-0"
+                          placeholder={t("hero.inputPlaceholder")}
+                          value={inputUrl}
+                          rows={3}
+                          wrap="soft"
+                          spellCheck={false}
+                          onChange={(e) => setInputUrl(e.target.value)}
+                          aria-label={t("hero.inputPlaceholder")}
+                        />
+                      )}
                     </div>
                   </label>
 
@@ -603,11 +631,13 @@ export default function QrCodeGenClient() {
         </div>
       </footer>
 
-      <OtherFormatsModal
-        open={otherFormatsOpen}
-        activeStyle={activeStyle}
-        onClose={() => setOtherFormatsOpen(false)}
-      />
+      {otherFormatsOpen ? (
+        <OtherFormatsModal
+          open={otherFormatsOpen}
+          activeStyle={activeStyle}
+          onClose={() => setOtherFormatsOpen(false)}
+        />
+      ) : null}
 
       <QrBeautifyModal
         open={modalOpen}

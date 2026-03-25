@@ -9,7 +9,16 @@
   },
   "hero": {
     "title": "Create Your Creative QR Codes",
-    "subtitle": "One URL is all it takes to generate a beautiful QR code for free—and make what you share stand out.",
+    "subtitle1": {
+      "icon": "✨",
+      "lead": "Free to create",
+      "detail": "Enter a URL and start in seconds"
+    },
+    "subtitle2": {
+      "icon": "🎨",
+      "lead": "Beautiful & unique",
+      "detail": "Make what you share stand out"
+    },
     "inputPlaceholder": "Enter your URL here...",
     "generateButton": "Generate QR Code",
     "generatingButton": "Creating...",
@@ -146,8 +155,11 @@
     "more": {
       "title": "More",
       "quietZone": "Code Margin",
+      "quietZoneHint": "The margin around the QR pattern from all sides. The QR standard quiet zone is 2 modules wide.",
       "errorCorrection": "Error Tolerance",
+      "errorCorrectionHint": "Error tolerance is how well a QR code can still be read when partly damaged or obscured. Higher values resist dirt and damage better, but reduce how much data you can store.",
       "qrVersion": "QR Version",
+      "qrVersionHint": "The number of modules in one row or column of the QR code. Higher versions mean a denser pattern.",
       "encodedContent": "Encoded Content",
       "options": {
         "quietZone": {

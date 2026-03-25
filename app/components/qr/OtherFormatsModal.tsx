@@ -2,7 +2,6 @@
 
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
-import { jsPDF } from "jspdf";
 import QRCodeStyling from "qr-code-styling";
 import { svg2pdf } from "svg2pdf.js";
 
@@ -32,6 +31,12 @@ function withAutoVersionFallback(options: QrBuildOptions): QrBuildOptions {
 
 function delay(ms: number) {
   return new Promise((r) => setTimeout(r, ms));
+}
+
+/** 按需加载 jspdf，避免首页主 chunk 依赖其独立分包（Turbopack 下偶发 chunk 加载失败） */
+async function loadJsPDF() {
+  const mod = await import("jspdf");
+  return mod.jsPDF ?? mod.default;
 }
 
 async function triggerDownload(blob: Blob, filename: string) {
@@ -168,7 +173,8 @@ export default function OtherFormatsModal({ open, activeStyle, onClose }: Props)
         holder.appendChild(clone);
 
         try {
-          const pdf = new jsPDF({
+          const JsPDF = await loadJsPDF();
+          const pdf = new JsPDF({
             unit: "pt",
             format: [W, H],
             orientation: "portrait",
@@ -232,7 +238,8 @@ export default function OtherFormatsModal({ open, activeStyle, onClose }: Props)
       const clone = svgEl.cloneNode(true) as SVGSVGElement;
       holder.appendChild(clone);
       try {
-        const pdf = new jsPDF({
+        const JsPDF = await loadJsPDF();
+        const pdf = new JsPDF({
           unit: "pt",
           format: [W, H],
           orientation: "portrait",

@@ -8,8 +8,17 @@
     "brand": "秒码"
   },
   "hero": {
-    "title": "打造你的创意二维码",
-    "subtitle": "一个网址，即可免费生成精美的二维码，让你的分享脱颖而出。",
+    "title": "专属创意二维码",
+    "subtitle1": {
+      "icon": "✨",
+      "lead": "免费生成",
+      "detail": "输入网址，即刻开始"
+    },
+    "subtitle2": {
+      "icon": "🎨",
+      "lead": "精美独特",
+      "detail": "让你的分享脱颖而出"
+    },
     "inputPlaceholder": "请输入你的网址...",
     "generateButton": "生成二维码",
     "generatingButton": "在建一个",
@@ -146,8 +155,11 @@
     "more": {
       "title": "更多",
       "quietZone": "码边距",
+      "quietZoneHint": "二维码图案距离四周的边距，QR码标准边距为2个色块",
       "errorCorrection": "容错率",
+      "errorCorrectionHint": "容错率是二维码在部分损坏或被遮挡时仍能被识别的能力。数值越高，越耐污损，但可存储的数据会减少。",
       "qrVersion": "码版本",
+      "qrVersionHint": "二维码一行或一列中包含的码点数量，码版本越高，码点密度越高",
       "encodedContent": "编码内容",
       "options": {
         "quietZone": {

@@ -116,33 +116,58 @@ type Props = {
   onDownloadAndPrint: () => void;
 };
 
-function QRPreview({ draft, containerRef }: { draft: QrStyleState; containerRef: React.RefObject<HTMLDivElement | null> }) {
+const QR_PREVIEW_DEBOUNCE_MS = 280;
+
+function QRPreview({
+  draft,
+  containerRef,
+  open,
+}: {
+  draft: QrStyleState;
+  containerRef: React.RefObject<HTMLDivElement | null>;
+  open: boolean;
+}) {
   const qrRef = useRef<QRCodeStyling | null>(null);
+  const draftRef = useRef(draft);
+  draftRef.current = draft;
+  /** 每次打开弹窗后第一次预览立即绘制，之后对 draft 变化防抖（避免码上方文字输入时整图闪烁） */
+  const skipDebounceOnceRef = useRef(true);
 
   useEffect(() => {
+    if (!open) {
+      skipDebounceOnceRef.current = true;
+      qrRef.current = null;
+      return;
+    }
+
     const el = containerRef.current;
     if (!el) return;
 
-    // Clear old content for consistent re-render.
-    el.innerHTML = "";
+    const delayMs = skipDebounceOnceRef.current ? 0 : QR_PREVIEW_DEBOUNCE_MS;
+    skipDebounceOnceRef.current = false;
 
-    const options = buildQrStylingOptions(draft, "preview");
-    let qr: QRCodeStyling;
-    try {
-      qr = new QRCodeStyling(options);
-      qr.applyExtension(overlayTextExtension);
-      qr.append(el);
-    } catch {
-      qr = new QRCodeStyling(withAutoVersionFallback(options));
-      qr.applyExtension(overlayTextExtension);
-      qr.append(el);
-    }
-    qrRef.current = qr;
+    const timer = window.setTimeout(() => {
+      const d = draftRef.current;
+      el.innerHTML = "";
+
+      const options = buildQrStylingOptions(d, "preview");
+      let qr: QRCodeStyling;
+      try {
+        qr = new QRCodeStyling(options);
+        qr.applyExtension(overlayTextExtension);
+        qr.append(el);
+      } catch {
+        qr = new QRCodeStyling(withAutoVersionFallback(options));
+        qr.applyExtension(overlayTextExtension);
+        qr.append(el);
+      }
+      qrRef.current = qr;
+    }, delayMs);
 
     return () => {
-      qrRef.current = null;
+      window.clearTimeout(timer);
     };
-  }, [containerRef, draft]);
+  }, [containerRef, draft, open]);
 
   return null;
 }
@@ -942,8 +967,18 @@ export default function QrBeautifyModal({
             <h4 className="text-sm font-semibold text-gray-800">{t("modal.more.title")}</h4>
             <div className="grid grid-cols-1 gap-y-4">
               <div className="flex items-center">
-                <label className="text-sm text-gray-600 w-28 shrink-0 flex items-center gap-1">
-                  {t("modal.more.quietZone")} <span className="material-symbols-outlined text-xs">info</span>
+                <label
+                  className="text-sm text-gray-600 w-28 shrink-0 flex items-center gap-1"
+                  title={t("modal.more.quietZoneHint")}
+                >
+                  {t("modal.more.quietZone")}{" "}
+                  <span
+                    className="material-symbols-outlined cursor-help text-xs"
+                    title={t("modal.more.quietZoneHint")}
+                    aria-label={t("modal.more.quietZoneHint")}
+                  >
+                    info
+                  </span>
                 </label>
                 <div className="w-[140px] shrink-0">
                   <select
@@ -960,8 +995,18 @@ export default function QrBeautifyModal({
               </div>
 
               <div className="flex items-center">
-                <label className="text-sm text-gray-600 w-28 shrink-0 flex items-center gap-1">
-                  {t("modal.more.errorCorrection")} <span className="material-symbols-outlined text-xs">info</span>
+                <label
+                  className="text-sm text-gray-600 w-28 shrink-0 flex items-center gap-1"
+                  title={t("modal.more.errorCorrectionHint")}
+                >
+                  {t("modal.more.errorCorrection")}{" "}
+                  <span
+                    className="material-symbols-outlined cursor-help text-xs"
+                    title={t("modal.more.errorCorrectionHint")}
+                    aria-label={t("modal.more.errorCorrectionHint")}
+                  >
+                    info
+                  </span>
                 </label>
                 <div className="w-[140px] shrink-0">
                   <select
@@ -978,8 +1023,18 @@ export default function QrBeautifyModal({
               </div>
 
               <div className="flex items-center">
-                <label className="text-sm text-gray-600 w-28 shrink-0 flex items-center gap-1">
-                  {t("modal.more.qrVersion")} <span className="material-symbols-outlined text-xs">info</span>
+                <label
+                  className="text-sm text-gray-600 w-28 shrink-0 flex items-center gap-1"
+                  title={t("modal.more.qrVersionHint")}
+                >
+                  {t("modal.more.qrVersion")}{" "}
+                  <span
+                    className="material-symbols-outlined cursor-help text-xs"
+                    title={t("modal.more.qrVersionHint")}
+                    aria-label={t("modal.more.qrVersionHint")}
+                  >
+                    info
+                  </span>
                 </label>
                 <div ref={qrVersionFieldRef} className="relative w-[140px] shrink-0">
                   <button
@@ -1140,7 +1195,7 @@ export default function QrBeautifyModal({
               />
             </div>
 
-            <QRPreview draft={draft} containerRef={modalPreviewRef} />
+            <QRPreview draft={draft} containerRef={modalPreviewRef} open={open} />
 
             <div className="w-full space-y-3 mt-4">
               <button
