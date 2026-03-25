@@ -496,8 +496,9 @@ export function buildQrStylingOptionsFromWidth(state: QrStyleState, width: numbe
   options.imageOptions = {
     crossOrigin: "anonymous",
     saveAsBlob: true,
-    margin: 4,
-    imageSize: Math.min(0.9, 200 / width),
+    margin: 5,
+    // 中间 Logo 占码区比例（qr-code-styling 为 0～1）；上限 0.4，大图时随 width 略降
+    imageSize: Math.min(0.4, 100 / width),
     hideBackgroundDots: true,
   };
 
