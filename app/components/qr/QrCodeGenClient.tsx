@@ -1,8 +1,9 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import dynamic from "next/dynamic";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import {useTranslations} from "next-intl";
 import {useLocale} from "next-intl";
 import {usePathname, useRouter} from "next/navigation";
@@ -19,6 +20,7 @@ import {
   type QrBuildOptions,
   QrStyleState,
 } from "./qrStyle";
+import SiteHeader from "../SiteHeader";
 import QrBeautifyModal from "./QrBeautifyModal";
 
 const OtherFormatsModal = dynamic(() => import("./OtherFormatsModal"), { ssr: false });
@@ -31,6 +33,63 @@ function withAutoVersionFallback(options: QrBuildOptions): QrBuildOptions {
       typeNumber: 0,
     },
   };
+}
+
+const SNAPSHOT_KEY = "qrgen-i18n-snapshot";
+
+type QrPageSnapshot = {
+  inputUrl: string;
+  hasGenerated: boolean;
+  activeStyle: QrStyleState;
+  draft: QrStyleState;
+  modalOpen: boolean;
+};
+
+/** Same payload for React Strict Mode double mount after reading localStorage once. */
+let stagedQrPageSnapshot: QrPageSnapshot | null | undefined;
+
+function takeStagedQrPageSnapshot(): QrPageSnapshot | null {
+  if (stagedQrPageSnapshot !== undefined) {
+    return stagedQrPageSnapshot === null ? null : stagedQrPageSnapshot;
+  }
+  if (typeof window === "undefined") {
+    return null;
+  }
+  try {
+    const raw = localStorage.getItem(SNAPSHOT_KEY);
+    if (!raw) {
+      stagedQrPageSnapshot = null;
+      return null;
+    }
+    const parsed = JSON.parse(raw) as Partial<{
+      inputUrl: string;
+      hasGenerated: boolean;
+      activeStyle: QrStyleState;
+      draft: QrStyleState;
+      modalOpen: boolean;
+    }>;
+    localStorage.removeItem(SNAPSHOT_KEY);
+
+    const activeStyle = parsed.activeStyle
+      ? migrateQrStyleState(parsed.activeStyle as QrStyleState)
+      : { ...DEFAULT_QR_STYLE, encodedContent: "" };
+    const draft = parsed.draft
+      ? migrateQrStyleState(parsed.draft as QrStyleState)
+      : { ...DEFAULT_QR_STYLE };
+
+    const snap: QrPageSnapshot = {
+      inputUrl: typeof parsed.inputUrl === "string" ? parsed.inputUrl : "",
+      hasGenerated: typeof parsed.hasGenerated === "boolean" ? parsed.hasGenerated : false,
+      activeStyle,
+      draft,
+      modalOpen: typeof parsed.modalOpen === "boolean" ? parsed.modalOpen : false,
+    };
+    stagedQrPageSnapshot = snap;
+    return snap;
+  } catch {
+    stagedQrPageSnapshot = null;
+    return null;
+  }
 }
 
 export default function QrCodeGenClient() {
@@ -55,40 +114,72 @@ export default function QrCodeGenClient() {
   const mainQrContainerRef = useRef<HTMLDivElement | null>(null);
   const qrInstanceRef = useRef<QRCodeStyling | null>(null);
 
-  const snapshotKey = "qrgen-i18n-snapshot";
+  const persistRef = useRef({
+    inputUrl,
+    hasGenerated,
+    activeStyle,
+    draft,
+    modalOpen,
+  });
+  useEffect(() => {
+    persistRef.current = {
+      inputUrl,
+      hasGenerated,
+      activeStyle,
+      draft,
+      modalOpen,
+    };
+  });
+
+  const allowPersistOnUnmount = useRef(false);
+  useEffect(() => {
+    const id = requestAnimationFrame(() => {
+      allowPersistOnUnmount.current = true;
+      requestAnimationFrame(() => {
+        stagedQrPageSnapshot = undefined;
+      });
+    });
+    return () => cancelAnimationFrame(id);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      const s = persistRef.current;
+      const meaningful =
+        s.hasGenerated || Boolean(s.inputUrl.trim()) || s.modalOpen;
+      if (!allowPersistOnUnmount.current && !meaningful) return;
+      try {
+        localStorage.setItem(SNAPSHOT_KEY, JSON.stringify(s));
+      } catch {
+        // Ignore snapshot errors.
+      }
+    };
+  }, []);
+
+  useLayoutEffect(() => {
+    const snap = takeStagedQrPageSnapshot();
+    if (!snap) return;
+    setInputUrl(snap.inputUrl);
+    setHasGenerated(snap.hasGenerated);
+    setActiveStyle(snap.activeStyle);
+    setDraft(snap.draft);
+    setModalOpen(snap.modalOpen);
+    persistRef.current = {
+      inputUrl: snap.inputUrl,
+      hasGenerated: snap.hasGenerated,
+      activeStyle: snap.activeStyle,
+      draft: snap.draft,
+      modalOpen: snap.modalOpen,
+    };
+  }, []);
 
   const canDownload = hasGenerated && Boolean(activeStyle.encodedContent.trim());
   const canBeautify = canDownload;
 
-  useEffect(() => {
-    // Restore UI state when switching locales to keep the page interaction as smooth as possible.
-    try {
-      const raw = localStorage.getItem(snapshotKey);
-      if (!raw) return;
-      const parsed = JSON.parse(raw) as Partial<{
-        inputUrl: string;
-        hasGenerated: boolean;
-        activeStyle: QrStyleState;
-        draft: QrStyleState;
-        modalOpen: boolean;
-      }>;
-
-      if (typeof parsed.inputUrl === "string") setInputUrl(parsed.inputUrl);
-      if (typeof parsed.hasGenerated === "boolean") setHasGenerated(parsed.hasGenerated);
-      if (parsed.activeStyle) setActiveStyle(migrateQrStyleState(parsed.activeStyle as QrStyleState));
-      if (parsed.draft) setDraft(migrateQrStyleState(parsed.draft as QrStyleState));
-      if (typeof parsed.modalOpen === "boolean") setModalOpen(parsed.modalOpen);
-
-      localStorage.removeItem(snapshotKey);
-    } catch {
-      // Ignore restore errors.
-    }
-  }, []);
-
-  const switchLocale = (nextLocale: "zh" | "en") => {
+  const beforeLocaleSwitch = (nextLocale: "zh" | "en") => {
     try {
       localStorage.setItem(
-        snapshotKey,
+        SNAPSHOT_KEY,
         JSON.stringify({
           inputUrl,
           hasGenerated,
@@ -100,15 +191,16 @@ export default function QrCodeGenClient() {
     } catch {
       // Ignore snapshot errors.
     }
+  };
 
+  const switchLocale = (nextLocale: "zh" | "en") => {
+    beforeLocaleSwitch(nextLocale);
     const parts = pathname.split("/");
-    // pathname like: /zh or /zh/something
     if (parts.length >= 2 && (parts[1] === "zh" || parts[1] === "en")) {
       parts[1] = nextLocale;
       router.push(parts.join("/"));
       return;
     }
-
     router.push(`/${nextLocale}`);
   };
 
@@ -325,39 +417,7 @@ export default function QrCodeGenClient() {
 
   return (
     <div className="relative flex min-h-screen w-full flex-col bg-background-light text-[#111418] font-display">
-      <header className="sticky top-0 z-50 flex items-center justify-between whitespace-nowrap border-b border-solid border-gray-200/80 bg-background-light/80 backdrop-blur-sm px-4 py-3 sm:px-6 lg:px-8">
-        <div className="flex items-center gap-4">
-          <span className="material-symbols-outlined text-primary text-3xl">qr_code_2</span>
-          <h2 className="text-xl font-bold leading-tight tracking-tighter">{t("header.brand")}</h2>
-        </div>
-        <nav className="hidden items-center gap-9 md:flex">
-          <a className="text-sm font-medium leading-normal text-gray-700 hover:text-primary" href="#features">
-            {t("nav.features")}
-          </a>
-          <a className="text-sm font-medium leading-normal text-gray-700 hover:text-primary" href="#about">
-            {t("nav.about")}
-          </a>
-          <a className="text-sm font-medium leading-normal text-gray-700 hover:text-primary" href="#contact">
-            {t("nav.contact")}
-          </a>
-        </nav>
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            className={`text-sm font-medium ${locale === "zh" ? "text-primary" : "text-gray-700 hover:text-primary"}`}
-            onClick={() => switchLocale("zh")}
-          >
-            {t("language.zh")}
-          </button>
-          <button
-            type="button"
-            className={`text-sm font-medium ${locale === "en" ? "text-primary" : "text-gray-700 hover:text-primary"}`}
-            onClick={() => switchLocale("en")}
-          >
-            {t("language.en")}
-          </button>
-        </div>
-      </header>
+      <SiteHeader beforeLocaleSwitch={beforeLocaleSwitch} />
 
       <main className="flex-grow">
         <section className="w-full py-20 lg:py-32">
@@ -377,7 +437,10 @@ export default function QrCodeGenClient() {
                   <div className="flex flex-col gap-2.5 text-sm text-gray-500 md:text-[15px] md:leading-relaxed">
                     {([1, 2] as const).map((n) => (
                       <div key={n} className="flex items-start gap-2.5">
-                        <span className="mt-0.5 shrink-0 text-base leading-none md:text-lg" aria-hidden>
+                        <span
+                          className="material-symbols-outlined mt-0.5 shrink-0 text-[1.25rem] leading-none text-primary md:text-[1.35rem]"
+                          aria-hidden
+                        >
                           {t(`hero.subtitle${n}.icon`)}
                         </span>
                         <p className="min-w-0 leading-snug">
@@ -602,9 +665,9 @@ export default function QrCodeGenClient() {
             <a className="text-sm font-medium text-gray-600 hover:text-primary" href="#">
               {t("footer.about")}
             </a>
-            <a className="text-sm font-medium text-gray-600 hover:text-primary" href="#">
+            <Link className="text-sm font-medium text-gray-600 hover:text-primary" href={`/${locale}/contact`}>
               {t("footer.contact")}
-            </a>
+            </Link>
             <a className="text-sm font-medium text-gray-600 hover:text-primary" href="#">
               {t("footer.privacy")}
             </a>

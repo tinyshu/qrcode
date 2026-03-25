@@ -10,12 +10,12 @@
   "hero": {
     "title": "专属创意二维码",
     "subtitle1": {
-      "icon": "✨",
+      "icon": "bolt",
       "lead": "免费生成",
       "detail": "输入网址，即刻开始"
     },
     "subtitle2": {
-      "icon": "🎨",
+      "icon": "diamond",
       "lead": "精美独特",
       "detail": "让你的分享脱颖而出"
     },
@@ -213,5 +213,13 @@
   "language": {
     "zh": "中文",
     "en": "English"
+  },
+  "contactPage": {
+    "titleLead": "把二维码技术",
+    "titleRest": "做成简单实用的产品",
+    "subtitle": "让每个人和组织都能轻松使用",
+    "bodyPrefix": "若你有任何意见和建议，无论是网站排版改进、观点分享和商务合作，欢迎随时联系站长的邮箱",
+    "bodySuffix": "进行交流和沟通。",
+    "backHome": "返回首页"
   }
 }

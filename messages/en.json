@@ -10,12 +10,12 @@
   "hero": {
     "title": "Create Your Creative QR Codes",
     "subtitle1": {
-      "icon": "✨",
+      "icon": "bolt",
       "lead": "Free to create",
       "detail": "Enter a URL and start in seconds"
     },
     "subtitle2": {
-      "icon": "🎨",
+      "icon": "diamond",
       "lead": "Beautiful & unique",
       "detail": "Make what you share stand out"
     },
@@ -213,5 +213,13 @@
   "language": {
     "zh": "Chinese",
     "en": "English"
+  },
+  "contactPage": {
+    "titleLead": "Turning QR technology ",
+    "titleRest": "into simple, practical products",
+    "subtitle": "So everyone and every organization can use it with ease",
+    "bodyPrefix": "If you have feedback or ideas—layout improvements, sharing your thoughts, or business collaboration—you’re welcome to email the site owner at ",
+    "bodySuffix": " anytime.",
+    "backHome": "Back to home"
   }
 }
