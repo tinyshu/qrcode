@@ -610,7 +610,9 @@ export async function svgBlobToPngBlob(svgBlob: Blob): Promise<Blob | null> {
 
 /** 从已渲染的 QRCodeStyling 实例导出 PNG（含扩展层中文等 Unicode）。 */
 export async function qrInstanceToPngBlob(qr: {
-  getRawData: (extension?: string) => Promise<Blob | Buffer | null>;
+  // `QRCodeStyling#getRawData` 的 `extension` 实际是更窄的 `FileExtension` 联合类型；
+  // 这里我们仅在内部传入 `"svg"`，因此将类型收窄到 `"svg"` 可避免 TS 不兼容。
+  getRawData: (extension?: "svg") => Promise<Blob | Buffer | null>;
 }): Promise<Blob | null> {
   const raw = await qr.getRawData("svg");
   if (!raw) return null;

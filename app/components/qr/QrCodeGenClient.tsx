@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import dynamic from "next/dynamic";
-import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {useTranslations} from "next-intl";
 import {useLocale} from "next-intl";
 import {usePathname, useRouter} from "next/navigation";
@@ -35,63 +35,6 @@ function withAutoVersionFallback(options: QrBuildOptions): QrBuildOptions {
   };
 }
 
-const SNAPSHOT_KEY = "qrgen-i18n-snapshot";
-
-type QrPageSnapshot = {
-  inputUrl: string;
-  hasGenerated: boolean;
-  activeStyle: QrStyleState;
-  draft: QrStyleState;
-  modalOpen: boolean;
-};
-
-/** Same payload for React Strict Mode double mount after reading localStorage once. */
-let stagedQrPageSnapshot: QrPageSnapshot | null | undefined;
-
-function takeStagedQrPageSnapshot(): QrPageSnapshot | null {
-  if (stagedQrPageSnapshot !== undefined) {
-    return stagedQrPageSnapshot === null ? null : stagedQrPageSnapshot;
-  }
-  if (typeof window === "undefined") {
-    return null;
-  }
-  try {
-    const raw = localStorage.getItem(SNAPSHOT_KEY);
-    if (!raw) {
-      stagedQrPageSnapshot = null;
-      return null;
-    }
-    const parsed = JSON.parse(raw) as Partial<{
-      inputUrl: string;
-      hasGenerated: boolean;
-      activeStyle: QrStyleState;
-      draft: QrStyleState;
-      modalOpen: boolean;
-    }>;
-    localStorage.removeItem(SNAPSHOT_KEY);
-
-    const activeStyle = parsed.activeStyle
-      ? migrateQrStyleState(parsed.activeStyle as QrStyleState)
-      : { ...DEFAULT_QR_STYLE, encodedContent: "" };
-    const draft = parsed.draft
-      ? migrateQrStyleState(parsed.draft as QrStyleState)
-      : { ...DEFAULT_QR_STYLE };
-
-    const snap: QrPageSnapshot = {
-      inputUrl: typeof parsed.inputUrl === "string" ? parsed.inputUrl : "",
-      hasGenerated: typeof parsed.hasGenerated === "boolean" ? parsed.hasGenerated : false,
-      activeStyle,
-      draft,
-      modalOpen: typeof parsed.modalOpen === "boolean" ? parsed.modalOpen : false,
-    };
-    stagedQrPageSnapshot = snap;
-    return snap;
-  } catch {
-    stagedQrPageSnapshot = null;
-    return null;
-  }
-}
-
 export default function QrCodeGenClient() {
   const t = useTranslations();
   const locale = useLocale();
@@ -114,72 +57,40 @@ export default function QrCodeGenClient() {
   const mainQrContainerRef = useRef<HTMLDivElement | null>(null);
   const qrInstanceRef = useRef<QRCodeStyling | null>(null);
 
-  const persistRef = useRef({
-    inputUrl,
-    hasGenerated,
-    activeStyle,
-    draft,
-    modalOpen,
-  });
-  useEffect(() => {
-    persistRef.current = {
-      inputUrl,
-      hasGenerated,
-      activeStyle,
-      draft,
-      modalOpen,
-    };
-  });
-
-  const allowPersistOnUnmount = useRef(false);
-  useEffect(() => {
-    const id = requestAnimationFrame(() => {
-      allowPersistOnUnmount.current = true;
-      requestAnimationFrame(() => {
-        stagedQrPageSnapshot = undefined;
-      });
-    });
-    return () => cancelAnimationFrame(id);
-  }, []);
-
-  useEffect(() => {
-    return () => {
-      const s = persistRef.current;
-      const meaningful =
-        s.hasGenerated || Boolean(s.inputUrl.trim()) || s.modalOpen;
-      if (!allowPersistOnUnmount.current && !meaningful) return;
-      try {
-        localStorage.setItem(SNAPSHOT_KEY, JSON.stringify(s));
-      } catch {
-        // Ignore snapshot errors.
-      }
-    };
-  }, []);
-
-  useLayoutEffect(() => {
-    const snap = takeStagedQrPageSnapshot();
-    if (!snap) return;
-    setInputUrl(snap.inputUrl);
-    setHasGenerated(snap.hasGenerated);
-    setActiveStyle(snap.activeStyle);
-    setDraft(snap.draft);
-    setModalOpen(snap.modalOpen);
-    persistRef.current = {
-      inputUrl: snap.inputUrl,
-      hasGenerated: snap.hasGenerated,
-      activeStyle: snap.activeStyle,
-      draft: snap.draft,
-      modalOpen: snap.modalOpen,
-    };
-  }, []);
+  const snapshotKey = "qrgen-i18n-snapshot";
 
   const canDownload = hasGenerated && Boolean(activeStyle.encodedContent.trim());
   const canBeautify = canDownload;
 
+  useEffect(() => {
+    // Restore UI state when switching locales to keep the page interaction as smooth as possible.
+    try {
+      const raw = localStorage.getItem(snapshotKey);
+      if (!raw) return;
+      const parsed = JSON.parse(raw) as Partial<{
+        inputUrl: string;
+        hasGenerated: boolean;
+        activeStyle: QrStyleState;
+        draft: QrStyleState;
+        modalOpen: boolean;
+      }>;
+
+      if (typeof parsed.inputUrl === "string") setInputUrl(parsed.inputUrl);
+      if (typeof parsed.hasGenerated === "boolean") setHasGenerated(parsed.hasGenerated);
+      if (parsed.activeStyle) setActiveStyle(migrateQrStyleState(parsed.activeStyle as QrStyleState));
+      if (parsed.draft) setDraft(migrateQrStyleState(parsed.draft as QrStyleState));
+      if (typeof parsed.modalOpen === "boolean") setModalOpen(parsed.modalOpen);
+
+      localStorage.removeItem(snapshotKey);
+    } catch {
+      // Ignore restore errors.
+    }
+  }, []);
+
   const beforeLocaleSwitch = (nextLocale: "zh" | "en") => {
     try {
       localStorage.setItem(
-        SNAPSHOT_KEY,
+        snapshotKey,
         JSON.stringify({
           inputUrl,
           hasGenerated,

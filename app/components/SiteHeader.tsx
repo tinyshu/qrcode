@@ -6,6 +6,8 @@ import { usePathname, useRouter } from "next/navigation";
 
 export type SiteHeaderProps = {
   beforeLocaleSwitch?: (nextLocale: "zh" | "en") => void;
+  /** 跳转联系页前写入首页状态，避免返回时二维码丢失 */
+  beforeContactNavigation?: () => void;
 };
 
 export default function SiteHeader({ beforeLocaleSwitch }: SiteHeaderProps) {

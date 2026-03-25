@@ -1,5 +1,6 @@
-import fs from "fs/promises";
+import * as fs from "fs/promises";
 import path from "path";
+import type { Dirent } from "fs";
 
 import { NextResponse } from "next/server";
 
@@ -13,7 +14,7 @@ const ALLOWED_EXT = new Set([".svg", ".png", ".jpg", ".jpeg", ".webp"]);
 export async function GET() {
   const dir = path.join(process.cwd(), "public", "logo-library");
 
-  let entries: Array<fs.Dirent> = [];
+  let entries: Dirent[] = [];
   try {
     entries = await fs.readdir(dir, { withFileTypes: true });
   } catch {
