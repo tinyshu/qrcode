@@ -547,17 +547,6 @@ export default function QrBeautifyModal({
         aria-modal="true"
         aria-label={t("modal.dots.shapePicker.title")}
       >
-        <div className="flex items-center justify-between px-3 py-2.5 border-b border-gray-200 bg-gray-50/80">
-          <h4 className="text-sm font-semibold text-gray-900">{t("modal.dots.shapePicker.title")}</h4>
-          <button
-            type="button"
-            className="rounded-md p-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-800"
-            aria-label={t("modal.dots.shapePicker.closeAria")}
-            onClick={() => setShowDotShapeDialog(false)}
-          >
-            <span className="material-symbols-outlined text-lg">close</span>
-          </button>
-        </div>
         <div className="p-3 max-h-[min(70vh,420px)] overflow-y-auto">
           <div className="grid grid-cols-3 gap-2">
             {QR_DOT_SHAPES.map((shape) => (
@@ -608,17 +597,6 @@ export default function QrBeautifyModal({
         aria-modal="true"
         aria-label={t("modal.dots.eyeShapePicker.title")}
       >
-        <div className="flex items-center justify-between px-3 py-2.5 border-b border-gray-200 bg-gray-50/80">
-          <h4 className="text-sm font-semibold text-gray-900">{t("modal.dots.eyeShapePicker.title")}</h4>
-          <button
-            type="button"
-            className="rounded-md p-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-800"
-            aria-label={t("modal.dots.eyeShapePicker.closeAria")}
-            onClick={() => setShowEyeShapeDialog(false)}
-          >
-            <span className="material-symbols-outlined text-lg">close</span>
-          </button>
-        </div>
         <div className="p-3 max-h-[min(70vh,420px)] overflow-y-auto">
           <div className="grid grid-cols-3 gap-2">
             {QR_EYE_SHAPES.map((shape) => (
