@@ -340,6 +340,52 @@ export function buildQrStylingOptionsFromWidth(state: QrStyleState, width: numbe
   return options;
 }
 
+const PLAIN_MARGIN_RATIO = 0.04;
+
+/**
+ * 纯黑白、方形点阵的基础二维码（无 Logo、无叠加文字、无自定义配色/码点样式），用于 SVG/PDF/EPS 等矢量导出。
+ */
+export function buildPlainQrStylingOptionsFromWidth(data: string, width: number): QrBuildOptions {
+  const margin = Math.max(8, Math.round(width * PLAIN_MARGIN_RATIO));
+  return {
+    type: "svg",
+    width,
+    height: width,
+    data,
+    margin,
+    qrOptions: {
+      typeNumber: 0 as TypeNumber,
+      errorCorrectionLevel: "M",
+    },
+    dotsOptions: {
+      color: "#000000",
+      type: "square",
+    },
+    cornersSquareOptions: {
+      color: "#000000",
+      type: "square",
+    },
+    cornersDotOptions: {
+      color: "#000000",
+      type: "square",
+    },
+    backgroundOptions: {
+      color: "#ffffff",
+    },
+    image: "",
+  };
+}
+
+export function withPlainQrAutoVersion(options: QrBuildOptions): QrBuildOptions {
+  return {
+    ...options,
+    qrOptions: {
+      ...options.qrOptions,
+      typeNumber: 0 as TypeNumber,
+    },
+  };
+}
+
 export function buildDownloadFilename(content: string) {
   const safe = content.trim().slice(0, 40).replace(/[^a-zA-Z0-9]+/g, "_");
   return safe ? `qr_${safe}` : "qr";

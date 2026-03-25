@@ -14,6 +14,9 @@
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --font-display: var(--font-space-grotesk);
+  /* 首页主标题：Noto Sans SC（思源黑体系）+ 系统中文无衬线回退 */
+  --font-hero-title: var(--font-noto-sc), "Noto Sans SC", "PingFang SC",
+    "Microsoft YaHei", "Source Han Sans SC", ui-sans-serif, sans-serif;
 }
 
 @media (prefers-color-scheme: dark) {

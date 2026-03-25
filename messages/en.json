@@ -8,8 +8,8 @@
     "brand": "QRCodeGen"
   },
   "hero": {
-    "title": "Create Custom QR Codes in Seconds",
-    "subtitle": "Enter any URL to instantly generate a free, high-quality QR code for your business or personal use.",
+    "title": "Create Your Creative QR Codes",
+    "subtitle": "One URL is all it takes to generate a beautiful QR code for free—and make what you share stand out.",
     "inputPlaceholder": "Enter your URL here...",
     "generateButton": "Generate QR Code",
     "generatingButton": "Creating...",
@@ -20,7 +20,27 @@
   },
   "buttons": {
     "download": "Download",
-    "beautify": "Beautify"
+    "beautify": "Beautify",
+    "downloadOtherFormats": "More formats"
+  },
+  "otherFormats": {
+    "title": "Download & print",
+    "closeAria": "Close",
+    "formatLabel": "Image format",
+    "formatPng": "PNG",
+    "formatPdf": "PDF (vector)",
+    "formatSvg": "SVG (vector)",
+    "formatEps": "EPS (vector)",
+    "sizeLabel": "Size",
+    "sizeOption": "{w} × {h}px",
+    "vectorNoSize": "Vector exports are plain black-and-white QR codes without beautify styles or overlay text. Size cannot be changed.",
+    "svgHint": "Tip: SVG is vector-based—great for lossless scaling and editing in Illustrator, Figma, and similar tools.",
+    "downloadAll": "Download all formats",
+    "cancel": "Cancel",
+    "download": "Download",
+    "downloading": "Exporting…",
+    "epsFailed": "Could not build EPS from this graphic (no rectangle paths found). Please use SVG instead.",
+    "downloadError": "Export failed. Please try again."
   },
   "features": {
     "title": "Our Features",

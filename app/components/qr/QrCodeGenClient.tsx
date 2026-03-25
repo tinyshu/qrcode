@@ -17,6 +17,7 @@ import {
   type QrBuildOptions,
   QrStyleState,
 } from "./qrStyle";
+import OtherFormatsModal from "./OtherFormatsModal";
 import QrBeautifyModal from "./QrBeautifyModal";
 
 function withAutoVersionFallback(options: QrBuildOptions): QrBuildOptions {
@@ -44,6 +45,7 @@ export default function QrCodeGenClient() {
   }));
 
   const [modalOpen, setModalOpen] = useState(false);
+  const [otherFormatsOpen, setOtherFormatsOpen] = useState(false);
   const [draft, setDraft] = useState<QrStyleState>(() => ({ ...DEFAULT_QR_STYLE }));
 
   const mainQrContainerRef = useRef<HTMLDivElement | null>(null);
@@ -187,7 +189,7 @@ export default function QrCodeGenClient() {
       return;
     }
 
-    const content = inputUrl.trim();
+    const content = inputUrl.replace(/\r?\n/g, "").trim();
     if (!content) return;
 
     setIsGenerating(true);
@@ -363,7 +365,7 @@ export default function QrCodeGenClient() {
             <div className="grid gap-12 lg:grid-cols-2 lg:gap-16">
               <div className="flex flex-col justify-center gap-8">
                 <div className="flex flex-col gap-4 text-left">
-                  <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl xl:text-6xl text-[#111418]">
+                  <h1 className="font-hero-title text-4xl font-bold [letter-spacing:1.5px] sm:text-5xl xl:text-6xl text-[#111418]">
                     {t("hero.title")}
                   </h1>
                   <p className="max-w-[600px] text-gray-600 md:text-xl">
@@ -374,17 +376,17 @@ export default function QrCodeGenClient() {
                 <div className="flex w-full max-w-lg flex-col gap-4">
                   <label className="flex flex-col w-full">
                     <div
-                      className={`flex w-full flex-none items-stretch rounded-xl min-h-20 max-h-[320px] shadow-sm border border-gray-200 resize-y overflow-auto focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2 focus-within:ring-offset-background-light ${
+                      className={`flex w-full flex-none items-stretch rounded-xl min-h-[180px] max-h-[640px] shadow-sm border border-gray-200 resize-y overflow-auto focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2 focus-within:ring-offset-background-light ${
                         hasGenerated ? "bg-gray-100" : "bg-white"
                       }`}
                     >
-                      <div className="text-gray-500 flex h-full items-center justify-center pl-4">
+                      <div className="text-gray-500 flex h-full min-h-[180px] shrink-0 items-center justify-center pl-4">
                         <span className="material-symbols-outlined">link</span>
                       </div>
-                      <input
-                        className={`flex h-full w-full min-w-0 flex-1 resize-none overflow-hidden ${
+                      <textarea
+                        className={`box-border min-h-[180px] w-full min-w-0 flex-1 resize-none overflow-y-auto overflow-x-hidden whitespace-pre-wrap break-all py-3 ${
                           hasGenerated ? "rounded-none" : "rounded-xl"
-                        } text-base font-normal leading-normal border-none px-4 focus:outline-none focus:ring-0 ${
+                        } text-base font-normal leading-normal border-none px-4 pr-3 focus:outline-none focus:ring-0 ${
                           hasGenerated
                             ? "bg-gray-100 text-gray-500 placeholder:text-gray-400 cursor-not-allowed"
                             : "text-[#111418] placeholder:text-gray-500 bg-transparent"
@@ -392,6 +394,8 @@ export default function QrCodeGenClient() {
                         placeholder={t("hero.inputPlaceholder")}
                         value={inputUrl}
                         readOnly={hasGenerated}
+                        rows={6}
+                        wrap="soft"
                         onChange={(e) => {
                           if (hasGenerated) return;
                           setInputUrl(e.target.value);
@@ -440,25 +444,37 @@ export default function QrCodeGenClient() {
 
                 <p className="text-sm text-gray-500">{t("qr.placeholderText")}</p>
 
-                <div className="flex w-full max-w-sm gap-4">
-                  <button
-                    type="button"
-                    className="flex flex-1 min-w-[84px] cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-wide hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
-                    disabled={!canDownload}
-                    onClick={() => downloadPng(activeStyle)}
-                  >
-                    <span className="material-symbols-outlined">download</span>
-                    <span className="truncate">{t("buttons.download")}</span>
-                  </button>
-                  <button
-                    type="button"
-                    className="flex flex-1 min-w-[84px] cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-lg h-10 px-4 bg-gray-200 text-[#111418] text-sm font-bold leading-normal tracking-wide hover:bg-gray-300 disabled:cursor-not-allowed disabled:opacity-50"
-                    disabled={!canBeautify}
-                    onClick={handleOpenBeautify}
-                  >
-                    <span className="material-symbols-outlined">palette</span>
-                    <span className="truncate">{t("buttons.beautify")}</span>
-                  </button>
+                <div className="flex w-full max-w-sm flex-col gap-3">
+                  <div className="flex w-full gap-4">
+                    <button
+                      type="button"
+                      className="flex flex-1 min-w-[84px] cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-wide hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+                      disabled={!canDownload}
+                      onClick={() => downloadPng(activeStyle)}
+                    >
+                      <span className="material-symbols-outlined">download</span>
+                      <span className="truncate">{t("buttons.download")}</span>
+                    </button>
+                    <button
+                      type="button"
+                      className="flex flex-1 min-w-[84px] cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-lg h-10 px-4 bg-gray-200 text-[#111418] text-sm font-bold leading-normal tracking-wide hover:bg-gray-300 disabled:cursor-not-allowed disabled:opacity-50"
+                      disabled={!canBeautify}
+                      onClick={handleOpenBeautify}
+                    >
+                      <span className="material-symbols-outlined">palette</span>
+                      <span className="truncate">{t("buttons.beautify")}</span>
+                    </button>
+                  </div>
+                  <div className="flex justify-center">
+                    <button
+                      type="button"
+                      className="text-sm text-primary hover:underline disabled:cursor-not-allowed disabled:opacity-50 disabled:no-underline"
+                      disabled={!canDownload}
+                      onClick={() => setOtherFormatsOpen(true)}
+                    >
+                      {t("buttons.downloadOtherFormats")}
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -585,6 +601,12 @@ export default function QrCodeGenClient() {
           </div>
         </div>
       </footer>
+
+      <OtherFormatsModal
+        open={otherFormatsOpen}
+        activeStyle={activeStyle}
+        onClose={() => setOtherFormatsOpen(false)}
+      />
 
       <QrBeautifyModal
         open={modalOpen}

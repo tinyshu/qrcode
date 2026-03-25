@@ -8,8 +8,8 @@
     "brand": "QRCodeGen"
   },
   "hero": {
-    "title": "秒生成个性化二维码",
-    "subtitle": "输入任意网址，即刻为你的业务或个人用途生成免费、高质量的二维码。",
+    "title": "打造你的创意二维码",
+    "subtitle": "一个网址，即可免费生成精美的二维码，让你的分享脱颖而出。",
     "inputPlaceholder": "请输入你的网址...",
     "generateButton": "生成二维码",
     "generatingButton": "在建一个",
@@ -20,7 +20,27 @@
   },
   "buttons": {
     "download": "下载",
-    "beautify": "美化"
+    "beautify": "美化",
+    "downloadOtherFormats": "其他格式下载"
+  },
+  "otherFormats": {
+    "title": "下载打印",
+    "closeAria": "关闭",
+    "formatLabel": "图片格式",
+    "formatPng": "PNG图片",
+    "formatPdf": "PDF矢量",
+    "formatSvg": "SVG矢量",
+    "formatEps": "EPS矢量",
+    "sizeLabel": "尺寸",
+    "sizeOption": "{w} × {h}px",
+    "vectorNoSize": "矢量格式导出为标准黑白二维码，不含美化样式与叠加文字，且不可选择尺寸。",
+    "svgHint": "提示：SVG 为矢量格式，适合在 Illustrator、Figma 等软件中继续编辑或无损放大。",
+    "downloadAll": "打包下载所有格式",
+    "cancel": "取消",
+    "download": "下载",
+    "downloading": "导出中…",
+    "epsFailed": "无法从当前图形生成 EPS（未识别到矩形路径）。请改用 SVG。",
+    "downloadError": "导出失败，请稍后重试。"
   },
   "features": {
     "title": "我们的功能",
