@@ -5,7 +5,7 @@
     "contact": "Contact"
   },
   "header": {
-    "brand": "QRCodeGen"
+    "brand": "QuickQR"
   },
   "hero": {
     "title": "Create Your Creative QR Codes",
@@ -45,7 +45,7 @@
   "features": {
     "title": "Our Features",
     "heading": "Go Beyond the Basics",
-    "desc": "QRCodeGen offers a suite of powerful tools to make your QR codes more effective, engaging, and aligned with your brand. From design customization to performance tracking, we have you covered.",
+    "desc": "QuickQR offers a suite of powerful tools to make your QR codes more effective, engaging, and aligned with your brand. From design customization to performance tracking, we have you covered.",
     "items": {
       "dynamic": {
         "title": "Dynamic QR Codes",
@@ -78,7 +78,7 @@
     "a4": "You can download your QR codes in high-resolution PNG and SVG formats, making them suitable for both web and print applications."
   },
   "footer": {
-    "copyright": "© 2024 QRCodeGen. All Rights Reserved.",
+    "copyright": "© 2024 QuickQR. All Rights Reserved.",
     "about": "About Us",
     "contact": "Contact",
     "privacy": "Privacy Policy",
