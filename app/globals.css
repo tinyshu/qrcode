@@ -11,8 +11,9 @@
   --color-primary: #fac638;
   --color-background-light: #f8f8f5;
   --color-background-dark: #231e0f;
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-space-grotesk);
+  --font-mono: ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, Consolas,
+    monospace;
   --font-display: var(--font-space-grotesk);
   /* 首页主标题：Inter + SF Pro 系 + 苹方/思源 回退（现代几何无衬线） */
   --font-hero-title: var(--font-inter), "SF Pro Display", -apple-system,

@@ -1,20 +1,11 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Inter, Noto_Sans_SC, Space_Grotesk } from "next/font/google";
+import { Inter, Noto_Sans_SC, Space_Grotesk } from "next/font/google";
 import "./globals.css";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 const spaceGrotesk = Space_Grotesk({
   variable: "--font-space-grotesk",
   subsets: ["latin"],
+  display: "swap",
 });
 
 /** 首页主标题拉丁字重：Inter Medium / SemiBold */
@@ -23,6 +14,7 @@ const inter = Inter({
   subsets: ["latin"],
   weight: ["500", "600"],
   display: "swap",
+  adjustFontFallback: true,
 });
 
 /** 思源黑体同源（Google Noto Sans SC），用于首页主标题中文回退 */
@@ -31,6 +23,7 @@ const notoSansSC = Noto_Sans_SC({
   subsets: ["latin"],
   weight: ["500", "700"],
   display: "swap",
+  adjustFontFallback: true,
 });
 
 export const metadata: Metadata = {
@@ -48,7 +41,7 @@ export default function RootLayout({
       <head>
         <link
           rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=swap"
         />
         <link
           rel="icon"
@@ -68,7 +61,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${spaceGrotesk.variable} ${inter.variable} ${notoSansSC.variable} antialiased`}
+        className={`${spaceGrotesk.variable} ${inter.variable} ${notoSansSC.variable} antialiased`}
       >
         {children}
       </body>

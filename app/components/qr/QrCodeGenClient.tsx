@@ -21,9 +21,9 @@ import {
   QrStyleState,
 } from "./qrStyle";
 import SiteHeader from "../SiteHeader";
-import QrBeautifyModal from "./QrBeautifyModal";
 
 const OtherFormatsModal = dynamic(() => import("./OtherFormatsModal"), { ssr: false });
+const QrBeautifyModal = dynamic(() => import("./QrBeautifyModal"), { ssr: false });
 
 function withAutoVersionFallback(options: QrBuildOptions): QrBuildOptions {
   return {

@@ -3,7 +3,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import QRCodeStyling from "qr-code-styling";
-import { svg2pdf } from "svg2pdf.js";
 
 import {
   buildDownloadFilename,
@@ -37,6 +36,12 @@ function delay(ms: number) {
 async function loadJsPDF() {
   const mod = await import("jspdf");
   return mod.jsPDF ?? mod.default;
+}
+
+/** PDF 导出时再加载 svg2pdf，减小「其他格式」弹窗首包 */
+async function loadSvg2pdf() {
+  const { svg2pdf } = await import("svg2pdf.js");
+  return svg2pdf;
 }
 
 async function triggerDownload(blob: Blob, filename: string) {
@@ -174,6 +179,7 @@ export default function OtherFormatsModal({ open, activeStyle, onClose }: Props)
 
         try {
           const JsPDF = await loadJsPDF();
+          const svg2pdf = await loadSvg2pdf();
           const pdf = new JsPDF({
             unit: "pt",
             format: [W, H],
@@ -239,6 +245,7 @@ export default function OtherFormatsModal({ open, activeStyle, onClose }: Props)
       holder.appendChild(clone);
       try {
         const JsPDF = await loadJsPDF();
+        const svg2pdf = await loadSvg2pdf();
         const pdf = new JsPDF({
           unit: "pt",
           format: [W, H],
