@@ -2,7 +2,9 @@
   "nav": {
     "features": "Features",
     "about": "About Us",
-    "contact": "Contact"
+    "contact": "Contact",
+    "friendlyLinks": "Friendly links",
+    "linkAidh": "AI Tools Navigation"
   },
   "header": {
     "brand": "QuickQR"
@@ -89,9 +91,7 @@
   "footer": {
     "copyright": "© 2024 QuickQR. All Rights Reserved.",
     "about": "About Us",
-    "contact": "Contact",
-    "privacy": "Privacy Policy",
-    "terms": "Terms of Service"
+    "contact": "Contact"
   },
   "modal": {
     "ariaLabel": "QR Code Style Editor",

@@ -2,7 +2,9 @@
   "nav": {
     "features": "功能",
     "about": "关于我们",
-    "contact": "联系"
+    "contact": "联系",
+    "friendlyLinks": "友情链接",
+    "linkAidh": "AI工具导航"
   },
   "header": {
     "brand": "秒码"
@@ -89,9 +91,7 @@
   "footer": {
     "copyright": "© 2024 秒码. 保留所有权利。",
     "about": "关于我们",
-    "contact": "联系",
-    "privacy": "隐私政策",
-    "terms": "服务条款"
+    "contact": "联系"
   },
   "modal": {
     "ariaLabel": "二维码样式编辑器",
