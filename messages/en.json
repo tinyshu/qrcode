@@ -1,4 +1,10 @@
 {
+  "meta": {
+    "title": "QuickQR — Create Your Creative QR Codes Online",
+    "description": "Generate beautiful QR codes from any URL. Customize colors, add a logo, and download PNG, SVG, or PDF. Free for personal and commercial use.",
+    "siteName": "QuickQR",
+    "ogImageAlt": "QuickQR QR code generator"
+  },
   "nav": {
     "features": "Features",
     "about": "About Us",
@@ -215,6 +221,8 @@
     "en": "English"
   },
   "contactPage": {
+    "seoTitle": "Contact — QuickQR",
+    "seoDescription": "Reach the QuickQR site owner for feedback, partnerships, and more.",
     "titleLead": "Turning QR technology ",
     "titleRest": "into simple, practical products",
     "subtitle": "So everyone and every organization can use it with ease",

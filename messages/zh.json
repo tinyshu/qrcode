@@ -1,4 +1,10 @@
 {
+  "meta": {
+    "title": "秒码 — 免费在线生成创意二维码",
+    "description": "输入链接即可生成高清二维码，支持美化样式、Logo、多种格式下载，个人与商业均可免费使用。",
+    "siteName": "秒码",
+    "ogImageAlt": "秒码二维码生成"
+  },
   "nav": {
     "features": "功能",
     "about": "关于我们",
@@ -215,6 +221,8 @@
     "en": "English"
   },
   "contactPage": {
+    "seoTitle": "联系 — 秒码",
+    "seoDescription": "欢迎就网站建议、商务合作等联系秒码站长。",
     "titleLead": "把二维码技术",
     "titleRest": "做成简单实用的产品",
     "subtitle": "让每个人和组织都能轻松使用",

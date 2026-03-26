@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import { Inter, Noto_Sans_SC, Space_Grotesk } from "next/font/google";
 import "./globals.css";
+
+import { getSiteUrl } from "@/lib/site-url";
 
 const spaceGrotesk = Space_Grotesk({
   variable: "--font-space-grotesk",
@@ -27,31 +30,28 @@ const notoSansSC = Noto_Sans_SC({
 });
 
 export const metadata: Metadata = {
-  title: "QRCodeGen",
-  description: "Create custom QR codes in seconds",
+  metadataBase: getSiteUrl(),
+  icons: {
+    icon: [{ url: "/favicon.svg", type: "image/svg+xml" }],
+    apple: [{ url: "/favicon.svg", type: "image/svg+xml" }],
+  },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const h = await headers();
+  const headerLocale = h.get("x-next-intl-locale");
+  const htmlLang = headerLocale === "en" ? "en" : "zh-Hans";
+
   return (
-    <html lang="en">
+    <html lang={htmlLang}>
       <head>
         <link
           rel="stylesheet"
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=swap"
-        />
-        <link
-          rel="icon"
-          href="/favicon.svg"
-          type="image/svg+xml"
-        />
-        <link
-          rel="apple-touch-icon"
-          href="/favicon.svg"
-          type="image/svg+xml"
         />
         <script
           // Enable Tailwind `dark:` styles based on system preference.
