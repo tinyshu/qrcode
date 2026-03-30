@@ -1267,7 +1267,8 @@ export default function QrBeautifyModal({
         {/* 必须 flex-col：若误为默认 row，子项 w-full 的底栏会占满宽度，flex-1 预览区宽度塌为 0，二维码不显示 */}
         <div className="flex w-full min-w-0 flex-col max-md:min-h-0 max-md:flex-1 md:max-h-[min(90dvh,90svh)] md:w-1/2 md:shrink-0">
           <div className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain bg-gray-100 px-4 py-5 md:min-h-0 md:py-8 md:pl-5 md:pr-8">
-            <div className="mx-auto flex w-full max-w-sm flex-col items-center gap-5 md:gap-6">
+            {/* 小屏不用 sticky 底栏：部分 WebView 下 sticky 会叠在 flex-1 滚动区上，裁切二维码；底栏改普通流 + 底部留白可滚完整 */}
+            <div className="mx-auto flex w-full max-w-sm flex-col items-center gap-5 pb-2 max-md:pb-5 md:gap-6">
               <div className="text-center">
                 <p className="text-sm text-gray-600">
                   {t("modal.preview.currentStyle")}{" "}
@@ -1277,10 +1278,10 @@ export default function QrBeautifyModal({
                 </p>
               </div>
 
-              <div className="flex min-h-[192px] w-full max-w-[280px] items-center justify-center overflow-hidden rounded-lg bg-white p-4 shadow-md">
+              <div className="flex min-h-[192px] w-full max-w-[280px] items-center justify-center overflow-hidden rounded-lg bg-white p-4 shadow-md max-md:overflow-visible">
                 <div
                   ref={modalPreviewRef}
-                  className="flex min-h-[160px] w-full max-w-full items-center justify-center [&_svg]:h-auto [&_svg]:max-h-[min(48vh,320px)] [&_svg]:max-w-full [&_svg]:w-full"
+                  className="flex min-h-[160px] w-full max-w-full items-center justify-center [&_svg]:h-auto [&_svg]:max-w-full [&_svg]:w-full max-md:[&_svg]:max-h-[min(36svh,260px)] [&_svg]:max-h-[min(48vh,320px)]"
                 />
               </div>
 
@@ -1288,7 +1289,7 @@ export default function QrBeautifyModal({
             </div>
           </div>
 
-          <div className="sticky bottom-0 z-[2] w-full shrink-0 border-t border-gray-200/90 bg-gray-100 px-4 pb-[max(12px,var(--sab))] pt-3 shadow-[0_-8px_20px_rgba(0,0,0,0.06)] md:static md:border-t-0 md:px-5 md:pb-6 md:pt-4 md:shadow-none">
+          <div className="relative w-full shrink-0 border-t border-gray-200/90 bg-gray-100 px-4 pb-[max(12px,var(--sab))] pt-3 shadow-[0_-8px_20px_rgba(0,0,0,0.06)] md:static md:border-t-0 md:px-5 md:pb-6 md:pt-4 md:shadow-none">
             <div className="mx-auto w-full max-w-sm space-y-3">
               <button
                 type="button"
