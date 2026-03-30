@@ -1,0 +1,16 @@
+---
+alwaysApply: true
+---
+
+Description:
+TypeScript 开发规范，确保类型安全和代码质量
+
+Globs:
+**/*.ts, **/*.tsx
+
+# TypeScript 规则
+- 禁用 any 类型，使用 unknown 替代
+- 启用 strict 模式
+- 使用类型推导减少冗余类型声明
+- 公共函数必须包含 JSDoc 注释
+- 使用 type 而不是 interface（除了 Props）

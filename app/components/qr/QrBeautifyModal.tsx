@@ -118,6 +118,19 @@ type Props = {
 
 const QR_PREVIEW_DEBOUNCE_MS = 280;
 
+/** 与 Tailwind `md` 对齐：小屏使用全屏布局与底部吸附的选色/选形面板 */
+function useNarrowModalUi() {
+  const [narrow, setNarrow] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 767px)");
+    const apply = () => setNarrow(mq.matches);
+    apply();
+    mq.addEventListener("change", apply);
+    return () => mq.removeEventListener("change", apply);
+  }, []);
+  return narrow;
+}
+
 function QRPreview({
   draft,
   containerRef,
@@ -183,6 +196,7 @@ export default function QrBeautifyModal({
   onDownloadAndPrint,
 }: Props) {
   const t = useTranslations();
+  const narrowUi = useNarrowModalUi();
   const qrVersionOptions = useMemo(
     () =>
       Array.from({ length: 40 }, (_, i) => {
@@ -439,8 +453,21 @@ export default function QrBeautifyModal({
     createPortal(
       <div
         ref={dotColorPopoverRef}
-        className="fixed z-[100] w-[280px] -translate-y-1/2 rounded-xl border border-gray-200 bg-white p-3 shadow-xl"
-        style={{ top: dotPopoverPos.top, left: dotPopoverPos.left }}
+        className={`fixed z-[100] rounded-xl border border-gray-200 bg-white p-3 shadow-xl ${
+          narrowUi
+            ? "left-4 right-4 w-auto max-h-[min(50vh,24rem)] overflow-y-auto"
+            : "w-[280px] -translate-y-1/2"
+        }`}
+        style={
+          narrowUi
+            ? {
+                top: "auto",
+                left: "max(1rem, env(safe-area-inset-left))",
+                right: "max(1rem, env(safe-area-inset-right))",
+                bottom: "max(1rem, env(safe-area-inset-bottom))",
+              }
+            : { top: dotPopoverPos.top, left: dotPopoverPos.left, transform: "translateY(-50%)" }
+        }
         role="presentation"
       >
         <div className="text-sm font-medium mb-3">{t("modal.dots.colorPicker.solid")}</div>
@@ -515,8 +542,21 @@ export default function QrBeautifyModal({
     createPortal(
       <div
         ref={bgColorPopoverRef}
-        className="fixed z-[100] w-[280px] -translate-y-1/2 rounded-xl border border-gray-200 bg-white p-3 shadow-xl"
-        style={{ top: bgPopoverPos.top, left: bgPopoverPos.left }}
+        className={`fixed z-[100] rounded-xl border border-gray-200 bg-white p-3 shadow-xl ${
+          narrowUi
+            ? "left-4 right-4 w-auto max-h-[min(50vh,24rem)] overflow-y-auto"
+            : "w-[280px] -translate-y-1/2"
+        }`}
+        style={
+          narrowUi
+            ? {
+                top: "auto",
+                left: "max(1rem, env(safe-area-inset-left))",
+                right: "max(1rem, env(safe-area-inset-right))",
+                bottom: "max(1rem, env(safe-area-inset-bottom))",
+              }
+            : { top: bgPopoverPos.top, left: bgPopoverPos.left, transform: "translateY(-50%)" }
+        }
         role="presentation"
       >
         <div className="text-sm font-medium mb-3">{t("modal.dots.colorPicker.solid")}</div>
@@ -571,8 +611,19 @@ export default function QrBeautifyModal({
     createPortal(
       <div
         ref={dotShapePopoverRef}
-        className="fixed z-[100] w-[300px] -translate-y-1/2 rounded-xl border border-gray-200 bg-white shadow-xl overflow-hidden"
-        style={{ top: dotShapePopoverPos.top, left: dotShapePopoverPos.left }}
+        className={`fixed z-[100] rounded-xl border border-gray-200 bg-white shadow-xl overflow-hidden ${
+          narrowUi ? "left-4 right-4 w-auto max-h-[min(70vh,28rem)]" : "w-[300px] -translate-y-1/2"
+        }`}
+        style={
+          narrowUi
+            ? {
+                top: "auto",
+                left: "max(1rem, env(safe-area-inset-left))",
+                right: "max(1rem, env(safe-area-inset-right))",
+                bottom: "max(1rem, env(safe-area-inset-bottom))",
+              }
+            : { top: dotShapePopoverPos.top, left: dotShapePopoverPos.left, transform: "translateY(-50%)" }
+        }
         role="dialog"
         aria-modal="true"
         aria-label={t("modal.dots.shapePicker.title")}
@@ -621,8 +672,19 @@ export default function QrBeautifyModal({
     createPortal(
       <div
         ref={eyeShapePopoverRef}
-        className="fixed z-[100] w-[300px] -translate-y-1/2 rounded-xl border border-gray-200 bg-white shadow-xl overflow-hidden"
-        style={{ top: eyeShapePopoverPos.top, left: eyeShapePopoverPos.left }}
+        className={`fixed z-[100] rounded-xl border border-gray-200 bg-white shadow-xl overflow-hidden ${
+          narrowUi ? "left-4 right-4 w-auto max-h-[min(70vh,28rem)]" : "w-[300px] -translate-y-1/2"
+        }`}
+        style={
+          narrowUi
+            ? {
+                top: "auto",
+                left: "max(1rem, env(safe-area-inset-left))",
+                right: "max(1rem, env(safe-area-inset-right))",
+                bottom: "max(1rem, env(safe-area-inset-bottom))",
+              }
+            : { top: eyeShapePopoverPos.top, left: eyeShapePopoverPos.left, transform: "translateY(-50%)" }
+        }
         role="dialog"
         aria-modal="true"
         aria-label={t("modal.dots.eyeShapePicker.title")}
@@ -669,7 +731,13 @@ export default function QrBeautifyModal({
     showLogoLibrary &&
     createPortal(
       <div
-        className="fixed inset-0 z-[120] bg-black/45 flex items-center justify-center p-4"
+        className="fixed inset-0 z-[120] flex items-end justify-center bg-black/45 p-0 sm:items-center sm:p-4"
+        style={{
+          paddingTop: "max(0px, var(--sat))",
+          paddingBottom: "max(0px, var(--sab))",
+          paddingLeft: "max(0px, var(--sal))",
+          paddingRight: "max(0px, var(--sar))",
+        }}
         role="dialog"
         aria-modal="true"
         aria-label={t("modal.logo.chooseBuiltIn")}
@@ -678,22 +746,22 @@ export default function QrBeautifyModal({
         }}
       >
         <div
-          className="w-full max-w-2xl rounded-xl border border-gray-200 bg-white shadow-2xl overflow-hidden"
+          className="flex max-h-[min(92dvh,92svh)] w-full max-w-2xl flex-col overflow-hidden rounded-t-2xl border border-gray-200 bg-white shadow-2xl sm:rounded-xl"
           onMouseDown={(e) => e.stopPropagation()}
         >
-          <div className="h-14 px-5 border-b border-gray-200 flex items-center justify-between">
+          <div className="flex h-14 shrink-0 items-center justify-between border-b border-gray-200 px-4 sm:px-5">
             <div className="text-lg font-semibold text-gray-900">{t("modal.logo.chooseBuiltIn")}</div>
             <button
               type="button"
-              className="rounded-md p-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-800"
+              className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 hover:text-gray-800"
               aria-label={t("modal.closeAriaLabel")}
               onClick={() => setShowLogoLibrary(false)}
             >
               <span className="material-symbols-outlined text-xl">close</span>
             </button>
           </div>
-          <div className="grid grid-cols-[132px_1fr] min-h-[360px] max-h-[70vh]">
-            <div className="border-r border-gray-200 bg-gray-50 p-3">
+          <div className="grid min-h-[260px] max-h-[min(70dvh,70svh)] grid-cols-1 sm:min-h-[360px] sm:grid-cols-[132px_1fr] sm:max-h-[70vh]">
+            <div className="border-b border-gray-200 bg-gray-50 p-3 sm:border-b-0 sm:border-r">
               <button
                 type="button"
                 className="w-full rounded-md bg-green-50 text-green-700 font-semibold px-3 py-2 text-left"
@@ -702,7 +770,7 @@ export default function QrBeautifyModal({
                 <span className="ml-1 text-sm text-green-700">({logoLibraryItems.length})</span>
               </button>
             </div>
-            <div className="p-4 overflow-y-auto">
+            <div className="min-h-0 overflow-y-auto overscroll-contain p-4">
               {logoLibraryLoading ? (
                 <div className="text-sm text-gray-500">Loading...</div>
               ) : (
@@ -746,8 +814,19 @@ export default function QrBeautifyModal({
     createPortal(
       <div
         ref={qrVersionPopoverRef}
-        className="fixed z-[100] w-[220px] -translate-y-1/2 rounded-xl border border-gray-200 bg-white shadow-xl overflow-hidden"
-        style={{ top: qrVersionPopoverPos.top, left: qrVersionPopoverPos.left }}
+        className={`fixed z-[100] rounded-xl border border-gray-200 bg-white shadow-xl overflow-hidden ${
+          narrowUi ? "left-4 right-4 w-auto max-h-[min(55vh,22rem)]" : "w-[220px] -translate-y-1/2"
+        }`}
+        style={
+          narrowUi
+            ? {
+                top: "auto",
+                left: "max(1rem, env(safe-area-inset-left))",
+                right: "max(1rem, env(safe-area-inset-right))",
+                bottom: "max(1rem, env(safe-area-inset-bottom))",
+              }
+            : { top: qrVersionPopoverPos.top, left: qrVersionPopoverPos.left, transform: "translateY(-50%)" }
+        }
         role="listbox"
         aria-label={t("modal.more.qrVersion")}
       >
@@ -778,38 +857,45 @@ export default function QrBeautifyModal({
   return (
     <>
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+      className="fixed inset-0 z-50 flex max-md:items-stretch max-md:justify-stretch items-center justify-center bg-black/60 p-0 backdrop-blur-sm md:p-4"
+      style={{
+        paddingTop: "max(0px, var(--sat))",
+        paddingBottom: "max(0px, var(--sab))",
+        paddingLeft: "max(0px, var(--sal))",
+        paddingRight: "max(0px, var(--sar))",
+      }}
       role="dialog"
       aria-modal="true"
       aria-label={t("modal.ariaLabel")}
     >
-      <div className="w-full max-w-[1440px] rounded-xl bg-background-light shadow-2xl flex overflow-hidden">
-        <div className="min-w-0 w-1/2 py-8 pl-6 pr-5 space-y-8 border-r border-gray-200 overflow-y-auto max-h-[90vh]">
-          <div className="flex items-center justify-between">
-            <h3 className="text-2xl font-bold">{t("modal.ariaLabel")}</h3>
+      <div className="flex h-full max-h-full min-h-0 w-full max-w-[1440px] flex-col overflow-hidden bg-background-light shadow-2xl max-md:rounded-none md:max-h-[min(90dvh,90svh)] md:flex-row md:rounded-xl">
+        <div className="flex max-h-[min(52dvh,400px)] min-h-0 flex-none flex-col overflow-y-auto overscroll-contain max-md:flex-none md:contents md:max-h-none md:overflow-visible">
+          <div className="min-w-0 space-y-6 border-b border-gray-200 px-4 py-5 max-md:pb-6 md:w-1/2 md:max-h-[min(90dvh,90svh)] md:space-y-8 md:border-b-0 md:border-r md:overflow-y-auto md:px-6 md:py-8 md:pr-5">
+          <div className="flex items-center justify-between gap-3">
+            <h3 className="text-xl font-bold md:text-2xl">{t("modal.ariaLabel")}</h3>
             <button
               type="button"
-              className="text-gray-500 hover:text-gray-800"
+              className="inline-flex min-h-11 min-w-11 items-center justify-center text-gray-500 hover:text-gray-800"
               onClick={handleCloseAttempt}
               aria-label={t("modal.closeAriaLabel")}
             >
-              <span className="material-symbols-outlined">close</span>
+              <span className="material-symbols-outlined text-2xl">close</span>
             </button>
           </div>
 
-          <div className="space-y-3 max-w-[430px]">
+          <div className="max-w-[430px] space-y-3">
             <h4 className="text-sm font-semibold text-gray-800">{t("modal.logo.title")}</h4>
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
               <button
                 type="button"
-                className="w-[180px] h-12 rounded-md border border-gray-300 bg-white text-sm text-center justify-center items-center gap-2 hover:bg-gray-50"
+                className="flex h-12 w-full items-center justify-center rounded-md border border-gray-300 bg-white text-sm hover:bg-gray-50 sm:w-[180px]"
                 onClick={() => logoInputRef.current?.click()}
               >
                 <span>{t("modal.logo.upload")}</span>
               </button>
               <button
                 type="button"
-                className="w-[180px] h-12 rounded-md border border-gray-300 bg-white text-sm text-center justify-center items-center gap-2 hover:bg-gray-50"
+                className="flex h-12 w-full items-center justify-center rounded-md border border-gray-300 bg-white text-sm hover:bg-gray-50 sm:w-[180px]"
                 onClick={() => setShowLogoLibrary((v) => !v)}
               >
                 <span>{t("modal.logo.library")}</span>
@@ -835,10 +921,10 @@ export default function QrBeautifyModal({
 
           <div className="space-y-4 border-t border-gray-200 pt-6">
             <h4 className="text-sm font-semibold text-gray-800">{t("modal.dots.title")}</h4>
-            <div className="grid grid-cols-2 gap-x-2 gap-y-4 justify-items-start">
-              <div ref={dotColorFieldRef} className="flex items-center relative min-w-0">
-                <label className="text-sm text-gray-600 w-24 shrink-0">{t("modal.dots.dotColor")}</label>
-                <div ref={dotColorTriggerRef} className="relative w-[180px] shrink-0">
+            <div className="grid grid-cols-1 gap-x-2 gap-y-4 justify-items-stretch sm:grid-cols-2 sm:justify-items-start">
+              <div ref={dotColorFieldRef} className="relative flex min-w-0 flex-col gap-1.5 sm:flex-row sm:items-center">
+                <label className="w-24 shrink-0 text-sm text-gray-600">{t("modal.dots.dotColor")}</label>
+                <div ref={dotColorTriggerRef} className="relative w-full max-w-[180px] shrink-0 sm:w-[180px]">
                   <button
                     type="button"
                     className="w-full rounded-md border border-gray-300 bg-white text-sm px-3 py-2 flex items-center justify-between"
@@ -858,9 +944,9 @@ export default function QrBeautifyModal({
                 </div>
               </div>
 
-              <div ref={bgColorFieldRef} className="flex items-center relative min-w-0">
-                <label className="text-sm text-gray-600 w-24 shrink-0">{t("modal.dots.backgroundColor")}</label>
-                <div ref={bgColorTriggerRef} className="relative w-[180px] shrink-0">
+              <div ref={bgColorFieldRef} className="relative flex min-w-0 flex-col gap-1.5 sm:flex-row sm:items-center">
+                <label className="w-24 shrink-0 text-sm text-gray-600">{t("modal.dots.backgroundColor")}</label>
+                <div ref={bgColorTriggerRef} className="relative w-full max-w-[180px] shrink-0 sm:w-[180px]">
                   <button
                     type="button"
                     className="w-full rounded-md border border-gray-300 bg-white text-sm px-3 py-2 flex items-center justify-between"
@@ -880,9 +966,9 @@ export default function QrBeautifyModal({
                 </div>
               </div>
 
-              <div ref={dotShapeFieldRef} className="flex items-center min-w-0">
-                <label className="text-sm text-gray-600 w-24 shrink-0">{t("modal.dots.dotShape")}</label>
-                <div ref={dotShapeTriggerRef} className="relative w-[180px] shrink-0">
+              <div ref={dotShapeFieldRef} className="flex min-w-0 flex-col gap-1.5 sm:flex-row sm:items-center">
+                <label className="w-24 shrink-0 text-sm text-gray-600">{t("modal.dots.dotShape")}</label>
+                <div ref={dotShapeTriggerRef} className="relative w-full max-w-[180px] shrink-0 sm:w-[180px]">
                   <button
                     type="button"
                     className="w-full rounded-md border border-gray-300 bg-white text-sm px-3 py-2 flex items-center justify-between hover:bg-gray-50"
@@ -909,9 +995,9 @@ export default function QrBeautifyModal({
                 </div>
               </div>
 
-              <div ref={eyeShapeFieldRef} className="flex items-center min-w-0">
-                <label className="text-sm text-gray-600 w-24 shrink-0">{t("modal.dots.eyeShape")}</label>
-                <div ref={eyeShapeTriggerRef} className="relative w-[180px] shrink-0">
+              <div ref={eyeShapeFieldRef} className="flex min-w-0 flex-col gap-1.5 sm:flex-row sm:items-center">
+                <label className="w-24 shrink-0 text-sm text-gray-600">{t("modal.dots.eyeShape")}</label>
+                <div ref={eyeShapeTriggerRef} className="relative w-full max-w-[180px] shrink-0 sm:w-[180px]">
                   <button
                     type="button"
                     className="w-full rounded-md border border-gray-300 bg-white text-sm px-3 py-2 flex items-center justify-between hover:bg-gray-50"
@@ -938,8 +1024,8 @@ export default function QrBeautifyModal({
                 </div>
               </div>
 
-              <div className="flex items-center col-span-2">
-                <label className="text-sm text-gray-600 w-24 shrink-0">{t("modal.dots.eyeColor")}</label>
+              <div className="col-span-1 flex flex-col gap-2 sm:col-span-2 sm:flex-row sm:items-center">
+                <label className="w-24 shrink-0 text-sm text-gray-600">{t("modal.dots.eyeColor")}</label>
                 <button
                   type="button"
                   className="text-primary hover:underline"
@@ -948,7 +1034,7 @@ export default function QrBeautifyModal({
                   {t("modal.dots.custom")}
                 </button>
                 {showEyeColorPicker && (
-                  <div className="ml-4 flex items-center gap-3">
+                  <div className="flex items-center gap-3 pl-0 sm:pl-4">
                     <input
                       type="color"
                       value={draft.eyeColor}
@@ -1058,7 +1144,7 @@ export default function QrBeautifyModal({
               <div className="flex items-start">
                 <label className="text-sm text-gray-600 w-24 shrink-0 pt-2.5">{t("modal.more.encodedContent")}</label>
                 <textarea
-                  className="w-[300px] max-w-full h-20 rounded-md border-gray-300 bg-gray-100 text-gray-500 text-sm px-3 py-2 cursor-not-allowed resize-none overflow-y-auto overflow-x-hidden whitespace-pre-wrap break-words"
+                  className="h-20 w-full max-w-[300px] rounded-md border-gray-300 bg-gray-100 px-3 py-2 text-sm text-gray-500 cursor-not-allowed resize-none overflow-y-auto overflow-x-hidden whitespace-pre-wrap break-words"
                   value={draft.encodedContent}
                   readOnly
                   wrap="soft"
@@ -1176,43 +1262,49 @@ export default function QrBeautifyModal({
             )}
           </div>
         </div>
+        </div>
 
-        <div className="w-1/2 min-w-0 py-8 pl-5 pr-8 flex flex-col items-center justify-center bg-gray-100">
-          <div className="flex flex-col items-center gap-6 w-full max-w-sm">
-            <div className="text-center">
-              <p className="text-sm text-gray-600">
-                {t("modal.preview.currentStyle")}{" "}
-                <a className="text-primary hover:underline" href="#">
-                  {t("modal.preview.basicStyle")}
-                </a>
-              </p>
+        {/* 必须 flex-col：若误为默认 row，子项 w-full 的底栏会占满宽度，flex-1 预览区宽度塌为 0，二维码不显示 */}
+        <div className="flex w-full min-w-0 flex-col max-md:min-h-0 max-md:flex-1 md:max-h-[min(90dvh,90svh)] md:w-1/2 md:shrink-0">
+          <div className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain bg-gray-100 px-4 py-5 md:min-h-0 md:py-8 md:pl-5 md:pr-8">
+            <div className="mx-auto flex w-full max-w-sm flex-col items-center gap-5 md:gap-6">
+              <div className="text-center">
+                <p className="text-sm text-gray-600">
+                  {t("modal.preview.currentStyle")}{" "}
+                  <a className="text-primary hover:underline" href="#">
+                    {t("modal.preview.basicStyle")}
+                  </a>
+                </p>
+              </div>
+
+              <div className="flex min-h-[192px] w-full max-w-[280px] items-center justify-center overflow-hidden rounded-lg bg-white p-4 shadow-md">
+                <div
+                  ref={modalPreviewRef}
+                  className="flex min-h-[160px] w-full max-w-full items-center justify-center [&_svg]:h-auto [&_svg]:max-h-[min(48vh,320px)] [&_svg]:max-w-full [&_svg]:w-full"
+                />
+              </div>
+
+              <QRPreview draft={draft} containerRef={modalPreviewRef} open={open} />
             </div>
+          </div>
 
-            <div className="w-64 max-w-full min-h-[192px] overflow-visible p-4 bg-white rounded-lg shadow-md flex items-start justify-center">
-              <div
-                ref={modalPreviewRef}
-                className="w-full flex items-start justify-center [&_svg]:max-w-full [&_svg]:h-auto"
-              />
-            </div>
-
-            <QRPreview draft={draft} containerRef={modalPreviewRef} open={open} />
-
-            <div className="w-full space-y-3 mt-4">
+          <div className="sticky bottom-0 z-[2] w-full shrink-0 border-t border-gray-200/90 bg-gray-100 px-4 pb-[max(12px,var(--sab))] pt-3 shadow-[0_-8px_20px_rgba(0,0,0,0.06)] md:static md:border-t-0 md:px-5 md:pb-6 md:pt-4 md:shadow-none">
+            <div className="mx-auto w-full max-w-sm space-y-3">
               <button
                 type="button"
-                className="w-full flex justify-center items-center gap-2 h-12 px-5 bg-primary text-white rounded-md text-base font-medium hover:opacity-90"
-                  onClick={() => {
-                    onSave();
-                    onClose();
-                  }}
+                className="flex h-12 min-h-12 w-full items-center justify-center gap-2 rounded-md bg-primary px-5 text-base font-medium text-white hover:opacity-90"
+                onClick={() => {
+                  onSave();
+                  onClose();
+                }}
               >
-                  {t("modal.preview.saveStyleReturn")}
+                {t("modal.preview.saveStyleReturn")}
               </button>
 
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between gap-3 px-0.5 pb-1">
                 <button
                   type="button"
-                  className="text-sm text-gray-600 hover:text-primary"
+                  className="min-h-12 flex-1 rounded-lg py-2 text-left text-sm text-gray-600 hover:text-primary"
                   onClick={() => {
                     onClear();
                   }}
@@ -1221,7 +1313,7 @@ export default function QrBeautifyModal({
                 </button>
                 <button
                   type="button"
-                  className="text-sm text-gray-600 hover:text-primary"
+                  className="min-h-12 flex-1 rounded-lg py-2 text-right text-sm text-gray-600 hover:text-primary"
                   onClick={onDownloadAndPrint}
                 >
                   {t("modal.preview.downloadAndPrint")}
@@ -1234,7 +1326,13 @@ export default function QrBeautifyModal({
 
       {confirmUnsavedOpen && (
         <div
-          className="fixed inset-0 z-60 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4"
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm"
+          style={{
+            paddingTop: "max(1rem, var(--sat))",
+            paddingBottom: "max(1rem, var(--sab))",
+            paddingLeft: "max(1rem, var(--sal))",
+            paddingRight: "max(1rem, var(--sar))",
+          }}
           role="alertdialog"
           aria-modal="true"
           aria-label={t("confirm.unsavedTitle")}
@@ -1243,10 +1341,10 @@ export default function QrBeautifyModal({
             <div className="p-6 border-b border-gray-200">
               <div className="text-base font-semibold text-[#111418]">{t("confirm.unsavedTitle")}</div>
             </div>
-            <div className="p-6 flex gap-3 justify-end">
+            <div className="flex flex-wrap justify-end gap-3 p-6">
               <button
                 type="button"
-                className="px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-700 font-medium hover:bg-gray-50"
+                className="min-h-12 rounded-lg border border-gray-300 bg-white px-4 py-2 font-medium text-gray-700 hover:bg-gray-50"
                 onClick={() => {
                   setConfirmUnsavedOpen(false);
                   onClose();
@@ -1256,7 +1354,7 @@ export default function QrBeautifyModal({
               </button>
               <button
                 type="button"
-                className="px-4 py-2 rounded-lg bg-primary text-white font-medium hover:opacity-90"
+                className="min-h-12 rounded-lg bg-primary px-4 py-2 font-medium text-white hover:opacity-90"
                 onClick={() => {
                   setConfirmUnsavedOpen(false);
                   onSave();

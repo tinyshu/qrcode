@@ -20,6 +20,7 @@ import {
   type QrBuildOptions,
   QrStyleState,
 } from "./qrStyle";
+import { useEnsurePrimaryCtaWhenKeyboard } from "@/lib/use-ensure-primary-cta-visible";
 import SiteHeader from "../SiteHeader";
 
 const OtherFormatsModal = dynamic(() => import("./OtherFormatsModal"), { ssr: false });
@@ -113,6 +114,12 @@ export default function QrCodeGenClient() {
 
   const mainQrContainerRef = useRef<HTMLDivElement | null>(null);
   const qrInstanceRef = useRef<QRCodeStyling | null>(null);
+  const generateCtaRef = useRef<HTMLButtonElement | null>(null);
+  const keyboardScrollEnabled = !hasGenerated;
+  const { schedulePrimaryCtaIntoView } = useEnsurePrimaryCtaWhenKeyboard(
+    generateCtaRef,
+    keyboardScrollEnabled,
+  );
 
   const persistRef = useRef({
     inputUrl,
@@ -416,33 +423,35 @@ export default function QrCodeGenClient() {
   };
 
   return (
-    <div className="relative flex min-h-screen w-full flex-col bg-background-light text-[#111418] font-display">
+    <div className="relative flex min-h-screen w-full flex-col overflow-x-hidden bg-background-light text-[#111418] font-display pb-[var(--sab)]">
       <SiteHeader beforeLocaleSwitch={beforeLocaleSwitch} />
 
       <main className="flex-grow">
-        <section className="w-full py-20 lg:py-32">
-          <div className="container mx-auto px-4">
-            <div className="grid gap-12 lg:grid-cols-2 lg:gap-16">
-              <div className="flex flex-col justify-center gap-6">
-                <div className="flex flex-col gap-3 text-left max-w-lg">
+        {/*
+          主标题规则（360 / 390 / 414 验收）：宽度小于 640px 时允许折行并略缩字号；≥640px 时英文主标题可用单行 clamp。
+          首屏目标：常见手机一屏内可见输入框 +「生成」主按钮；副文案可略缩，不足则轻量滚动即可到达 CTA。
+        */}
+        <section className="w-full py-6 sm:py-12 lg:py-32">
+          <div className="mx-auto w-full max-w-6xl px-4 sm:px-6">
+            <div className="grid gap-6 sm:gap-10 lg:grid-cols-2 lg:gap-8 xl:gap-10">
+              <div className="flex flex-col justify-center gap-4 sm:gap-6">
+                <div className="flex max-w-lg flex-col gap-2 text-left sm:gap-3">
                   {locale === "en" ? (
-                    <div className="@container w-full" style={{ containerType: "inline-size" }}>
-                      <h1 className="font-hero-title text-[clamp(0.9375rem,calc(100cqw_/_23),3rem)] font-semibold leading-tight tracking-tight whitespace-nowrap">
+                    <div className="@container w-full min-w-0" style={{ containerType: "inline-size" }}>
+                      <h1 className="font-hero-title break-words text-[clamp(0.875rem,calc(100cqw_/_20),3rem)] font-semibold leading-tight tracking-tight whitespace-normal sm:whitespace-nowrap">
                         <span className="text-[#111418] [text-shadow:0_2px_4px_rgba(0,0,0,0.08)]">
                           {heroTitle}
                         </span>
                       </h1>
                     </div>
                   ) : (
-                    <h1
-                      className={`font-hero-title text-3xl leading-tight [letter-spacing:1.5px] sm:text-4xl xl:text-5xl font-medium`}
-                    >
+                    <h1 className="font-hero-title break-words text-2xl font-medium leading-tight [letter-spacing:1.5px] sm:text-3xl md:text-4xl xl:text-5xl">
                       <span className="text-[#111418] [text-shadow:0_2px_4px_rgba(0,0,0,0.08)]">
                         {heroTitle}
                       </span>
                     </h1>
                   )}
-                  <div className="flex flex-col gap-2.5 text-sm text-gray-500 md:text-[15px] md:leading-relaxed">
+                  <div className="flex flex-col gap-2 text-xs text-gray-500 sm:gap-2.5 sm:text-sm md:text-[15px] md:leading-relaxed">
                     {([1, 2] as const).map((n) => (
                       <div key={n} className="flex items-start gap-2.5">
                         <span
@@ -463,8 +472,11 @@ export default function QrCodeGenClient() {
                   </div>
                 </div>
 
-                <div className="flex w-full max-w-lg flex-col gap-3">
-                  <label className="flex flex-col w-full">
+                <div
+                  id="hero-primary"
+                  className="flex w-full max-w-lg scroll-mt-24 flex-col gap-3 sm:scroll-mt-28"
+                >
+                  <label className="flex w-full flex-col">
                     <div
                       className={`flex h-24 w-full flex-none items-stretch overflow-hidden resize-none rounded-xl border border-gray-200 shadow-md focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2 focus-within:ring-offset-background-light ${
                         hasGenerated ? "bg-gray-100" : "bg-white"
@@ -494,6 +506,7 @@ export default function QrCodeGenClient() {
                           wrap="soft"
                           spellCheck={false}
                           onChange={(e) => setInputUrl(e.target.value)}
+                          onFocus={() => schedulePrimaryCtaIntoView()}
                           aria-label={t("hero.inputPlaceholder")}
                         />
                       )}
@@ -501,8 +514,9 @@ export default function QrCodeGenClient() {
                   </label>
 
                   <button
+                    ref={generateCtaRef}
                     type="button"
-                    className="flex w-full min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-xl h-12 px-5 bg-primary text-white text-base font-bold leading-normal tracking-wide hover:opacity-90"
+                    className="flex h-12 min-h-12 w-full min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-xl px-5 text-base font-bold leading-normal tracking-wide text-white bg-primary hover:opacity-90"
                     onClick={handleGenerate}
                   >
                     <span className="truncate">
@@ -516,25 +530,31 @@ export default function QrCodeGenClient() {
                 </div>
               </div>
 
-              <div className="flex flex-col items-center justify-center gap-6 rounded-xl bg-white p-8 shadow-lg border border-gray-200">
-                <div className="flex w-64 max-w-full min-h-[192px] items-start justify-center overflow-visible rounded-lg bg-gray-100 py-3 px-2">
-                  <div className="flex w-full min-w-0 items-start justify-center">
+              <div className="flex flex-col items-center justify-center gap-4 rounded-xl border border-gray-200 bg-white p-4 shadow-lg sm:gap-6 sm:p-8">
+                <div
+                  className={`flex w-full max-w-[280px] items-center justify-center overflow-hidden rounded-lg bg-gray-100 px-2 py-3 transition-shadow ${
+                    hasGenerated
+                      ? "min-h-[168px] ring-2 ring-primary/30 ring-offset-2 ring-offset-white"
+                      : "min-h-[160px] ring-1 ring-dashed ring-gray-300"
+                  }`}
+                >
+                  <div className="flex w-full min-w-0 max-w-full flex-col items-center justify-center">
                     <div
                       ref={mainQrContainerRef}
                       className={
                         hasGenerated
-                          ? "w-full flex items-start justify-center [&_svg]:max-w-full [&_svg]:max-h-[min(60vh,400px)] [&_svg]:h-auto"
+                          ? "flex w-full max-w-full items-center justify-center [&_svg]:h-auto [&_svg]:max-h-[min(52vh,360px)] [&_svg]:max-w-full [&_svg]:w-full"
                           : "hidden"
                       }
                     />
                     {!hasGenerated && (
-                      <div className="flex min-h-[168px] w-full items-center justify-center" aria-hidden>
+                      <div className="flex w-full max-w-[min(176px,72vw)] items-center justify-center py-2" aria-hidden>
                         <Image
                           src="/qr-placeholder.png"
                           alt=""
                           width={192}
                           height={192}
-                          className="h-44 w-44 object-contain opacity-[0.55]"
+                          className="h-auto w-full object-contain opacity-[0.5]"
                           priority
                         />
                       </div>
@@ -542,35 +562,39 @@ export default function QrCodeGenClient() {
                   </div>
                 </div>
 
-                <p className="text-sm text-gray-500">{t("qr.placeholderText")}</p>
+                <p
+                  className={`text-center text-sm ${hasGenerated ? "font-medium text-gray-700" : "text-gray-500"}`}
+                >
+                  {hasGenerated ? t("qr.readyHint") : t("qr.placeholderText")}
+                </p>
 
                 <div className="flex w-full max-w-sm flex-col gap-3">
-                  <div className="flex w-full gap-4">
+                  <div className="flex w-full gap-3 sm:gap-4">
                     <button
                       type="button"
-                      className="flex flex-1 min-w-[84px] cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-wide hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+                      className="flex h-12 min-h-12 min-w-0 flex-1 cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-lg bg-primary px-3 text-sm font-bold leading-normal tracking-wide text-white hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50 sm:px-4"
                       disabled={!canDownload}
                       onClick={() => downloadPng(activeStyle)}
                     >
-                      <span className="material-symbols-outlined">download</span>
+                      <span className="material-symbols-outlined shrink-0 text-[1.25rem]">download</span>
                       <span className="truncate">{t("buttons.download")}</span>
                     </button>
                     <button
                       type="button"
-                      className="flex flex-1 min-w-[84px] cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-lg h-10 border-2 border-primary bg-white px-4 text-sm font-bold leading-normal tracking-wide text-[#111418] hover:bg-primary/10 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-white"
+                      className="flex h-12 min-h-12 min-w-0 flex-1 cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-lg border-2 border-primary bg-white px-3 text-sm font-bold leading-normal tracking-wide text-[#111418] hover:bg-primary/10 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-white sm:px-4"
                       disabled={!canBeautify}
                       onClick={handleOpenBeautify}
                     >
-                      <span className="material-symbols-outlined text-primary" aria-hidden>
+                      <span className="material-symbols-outlined shrink-0 text-[1.25rem] text-primary" aria-hidden>
                         diamond
                       </span>
                       <span className="truncate">{t("buttons.beautify")}</span>
                     </button>
                   </div>
-                  <div className="flex justify-center">
+                  <div className="flex justify-center px-1">
                     <button
                       type="button"
-                      className="text-sm text-primary hover:underline disabled:cursor-not-allowed disabled:opacity-50 disabled:no-underline"
+                      className="min-h-12 rounded-lg px-4 py-3 text-sm text-primary hover:underline disabled:cursor-not-allowed disabled:opacity-50 disabled:no-underline"
                       disabled={!canDownload}
                       onClick={() => setOtherFormatsOpen(true)}
                     >
@@ -671,25 +695,31 @@ export default function QrCodeGenClient() {
       <footer className="w-full bg-background-light border-t border-gray-200" id="about">
         <div className="container mx-auto flex flex-col items-center gap-6 px-4 py-10 text-center sm:flex-row sm:justify-between">
           <p className="text-sm text-gray-600">{t("footer.copyright")}</p>
-          <div className="flex flex-wrap items-center justify-center gap-6" id="contact">
-            <a className="text-sm font-medium text-gray-600 hover:text-primary" href="#">
+          <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-6" id="contact">
+            <a
+              className="inline-flex min-h-12 items-center rounded-lg px-3 text-sm font-medium text-gray-600 hover:text-primary"
+              href="#"
+            >
               {t("footer.about")}
             </a>
-            <Link className="text-sm font-medium text-gray-600 hover:text-primary" href={`/${locale}/contact`}>
+            <Link
+              className="inline-flex min-h-12 items-center rounded-lg px-3 text-sm font-medium text-gray-600 hover:text-primary"
+              href={`/${locale}/contact`}
+            >
               {t("footer.contact")}
             </Link>
           </div>
-          <div className="flex items-center justify-center gap-4 mt-2">
+          <div className="mt-2 flex flex-wrap items-center justify-center gap-2 sm:gap-4">
             <button
               type="button"
-              className={`text-sm font-medium ${locale === "zh" ? "text-primary" : "text-gray-600 hover:text-primary"}`}
+              className={`min-h-12 rounded-lg px-4 text-sm font-medium ${locale === "zh" ? "text-primary" : "text-gray-600 hover:text-primary"}`}
               onClick={() => switchLocale("zh")}
             >
               {t("language.zh")}
             </button>
             <button
               type="button"
-              className={`text-sm font-medium ${locale === "en" ? "text-primary" : "text-gray-600 hover:text-primary"}`}
+              className={`min-h-12 rounded-lg px-4 text-sm font-medium ${locale === "en" ? "text-primary" : "text-gray-600 hover:text-primary"}`}
               onClick={() => switchLocale("en")}
             >
               {t("language.en")}

@@ -283,23 +283,29 @@ export default function OtherFormatsModal({ open, activeStyle, onClose }: Props)
 
   return (
     <div
-      className="fixed inset-0 z-[70] flex items-center justify-center bg-black/50 p-4"
+      className="fixed inset-0 z-[70] flex items-end justify-center bg-black/50 p-0 sm:items-center sm:p-4"
+      style={{
+        paddingTop: "max(0px, var(--sat))",
+        paddingBottom: "max(0px, var(--sab))",
+        paddingLeft: "max(0px, var(--sal))",
+        paddingRight: "max(0px, var(--sar))",
+      }}
       role="dialog"
       aria-modal="true"
       aria-labelledby="other-formats-title"
       onClick={onClose}
     >
       <div
-        className="w-full max-w-md rounded-xl bg-white shadow-2xl"
+        className="flex max-h-full w-full max-w-none flex-col overflow-hidden rounded-t-2xl bg-white shadow-2xl sm:max-h-[min(90dvh,90svh)] sm:max-w-md sm:rounded-xl"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between border-b border-gray-200 px-5 py-4">
+        <div className="flex shrink-0 items-center justify-between border-b border-gray-200 px-4 py-3 sm:px-5 sm:py-4">
           <h2 id="other-formats-title" className="text-lg font-semibold text-gray-900">
             {t("title")}
           </h2>
           <button
             type="button"
-            className="rounded-md p-1 text-gray-500 hover:bg-gray-100 hover:text-gray-800"
+            className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 hover:text-gray-800"
             onClick={onClose}
             aria-label={t("closeAria")}
           >
@@ -307,14 +313,14 @@ export default function OtherFormatsModal({ open, activeStyle, onClose }: Props)
           </button>
         </div>
 
-        <div className="space-y-5 px-5 py-4">
+        <div className="min-h-0 flex-1 space-y-5 overflow-y-auto overscroll-contain px-4 py-4 sm:px-5">
           <div>
             <p className="mb-2 text-sm font-semibold text-gray-900">{t("formatLabel")}</p>
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-wrap gap-2 sm:gap-3">
               {formatRows.map((opt) => (
                 <label
                   key={opt.id}
-                  className={`flex cursor-pointer items-center gap-2 rounded-lg border px-3 py-2 text-sm transition ${
+                  className={`flex min-h-11 cursor-pointer items-center gap-2 rounded-lg border px-3 py-2.5 text-sm transition ${
                     format === opt.id
                       ? "border-primary bg-primary/10 ring-1 ring-primary"
                       : "border-gray-200 hover:border-gray-300"
@@ -342,7 +348,7 @@ export default function OtherFormatsModal({ open, activeStyle, onClose }: Props)
           <div>
             <p className="mb-2 text-sm font-semibold text-gray-900">{t("sizeLabel")}</p>
             <select
-              className={`h-11 w-full rounded-lg border border-gray-300 bg-white px-3 text-sm ${
+              className={`h-12 min-h-12 w-full rounded-lg border border-gray-300 bg-white px-3 text-sm ${
                 isVector ? "cursor-not-allowed bg-gray-100 text-gray-500" : ""
               }`}
               value={pngSize}
@@ -366,10 +372,10 @@ export default function OtherFormatsModal({ open, activeStyle, onClose }: Props)
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-gray-200 px-5 py-4">
+        <div className="sticky bottom-0 z-[1] flex shrink-0 flex-wrap items-center justify-between gap-3 border-t border-gray-200 bg-white px-4 pb-[max(12px,var(--sab))] pt-3 sm:px-5">
           <button
             type="button"
-            className="text-sm text-primary hover:underline disabled:opacity-50"
+            className="min-h-12 rounded-lg px-2 text-sm text-primary hover:underline disabled:opacity-50"
             disabled={busy}
             onClick={() => void runDownloadAll()}
           >
@@ -378,7 +384,7 @@ export default function OtherFormatsModal({ open, activeStyle, onClose }: Props)
           <div className="flex gap-2">
             <button
               type="button"
-              className="h-10 rounded-lg border border-gray-300 bg-white px-4 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+              className="h-12 min-h-12 rounded-lg border border-gray-300 bg-white px-4 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
               disabled={busy}
               onClick={onClose}
             >
@@ -386,7 +392,7 @@ export default function OtherFormatsModal({ open, activeStyle, onClose }: Props)
             </button>
             <button
               type="button"
-              className="h-10 rounded-lg bg-primary px-4 text-sm font-semibold text-[#111418] hover:opacity-90 disabled:opacity-50"
+              className="h-12 min-h-12 rounded-lg bg-primary px-4 text-sm font-semibold text-[#111418] hover:opacity-90 disabled:opacity-50"
               disabled={busy || !data}
               onClick={() => void runSingleDownload()}
             >

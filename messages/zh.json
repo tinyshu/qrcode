@@ -13,7 +13,10 @@
     "linkAidh": "AI工具导航"
   },
   "header": {
-    "brand": "秒码"
+    "brand": "秒码",
+    "openMenu": "打开菜单",
+    "closeMenu": "关闭菜单",
+    "menuTitle": "导航"
   },
   "hero": {
     "title": "专属创意二维码",
@@ -33,7 +36,8 @@
     "generateAgainButton": "再次生成"
   },
   "qr": {
-    "placeholderText": "你的二维码将显示在这里"
+    "placeholderText": "你的二维码将显示在这里",
+    "readyHint": "已生成，可下载或美化"
   },
   "buttons": {
     "download": "下载",

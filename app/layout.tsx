@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { headers } from "next/headers";
 import { Inter, Noto_Sans_SC, Space_Grotesk } from "next/font/google";
 import "./globals.css";
@@ -35,6 +35,13 @@ export const metadata: Metadata = {
     icon: [{ url: "/favicon.svg", type: "image/svg+xml" }],
     apple: [{ url: "/favicon.svg", type: "image/svg+xml" }],
   },
+};
+
+/** `viewport-fit=cover` 使 `env(safe-area-inset-*)` 在刘海屏设备上可用 */
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
 };
 
 export default async function RootLayout({

@@ -20,6 +20,9 @@
 # production
 /build
 
+# 内部付费/商业需求备忘（不提交仓库）
+/docs/paid-requirements.md
+
 # misc
 .DS_Store
 *.pem

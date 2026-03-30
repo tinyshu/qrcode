@@ -13,7 +13,7 @@ export default function ContactPageClient() {
   const home = `/${locale}`;
 
   return (
-    <div className="relative flex min-h-screen w-full flex-col bg-background-light text-[#111418] font-display">
+    <div className="relative flex min-h-screen w-full flex-col overflow-x-hidden bg-background-light text-[#111418] font-display pb-[var(--sab)]">
       <SiteHeader />
       <main className="relative flex flex-1 flex-col">
         <div
@@ -27,13 +27,13 @@ export default function ContactPageClient() {
             WebkitMaskImage: "radial-gradient(ellipse 80% 70% at 50% 45%, black 20%, transparent 70%)",
           }}
         />
-        <div className="relative flex flex-1 flex-col items-center justify-center px-4 py-16 sm:py-24">
+        <div className="relative flex flex-1 flex-col items-center justify-center px-4 py-12 sm:py-24">
           <div
             className="@container mx-auto w-full max-w-2xl text-center"
             style={{ containerType: "inline-size" }}
           >
             <h1
-              className={`whitespace-nowrap font-bold leading-snug tracking-tight ${
+              className={`max-sm:whitespace-normal whitespace-nowrap font-bold leading-snug tracking-tight ${
                 locale === "zh"
                   ? "text-[clamp(0.8125rem,calc(100cqw_/_15),3rem)]"
                   : "text-[clamp(0.75rem,calc(100cqw_/_30),3rem)]"

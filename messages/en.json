@@ -13,7 +13,10 @@
     "linkAidh": "AI Tools Navigation"
   },
   "header": {
-    "brand": "QuickQR"
+    "brand": "QuickQR",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "menuTitle": "Menu"
   },
   "hero": {
     "title": "Create Your Creative QR Codes",
@@ -33,7 +36,8 @@
     "generateAgainButton": "Generate Again"
   },
   "qr": {
-    "placeholderText": "Your QR code will appear here"
+    "placeholderText": "Your QR code will appear here",
+    "readyHint": "Generated — download or beautify"
   },
   "buttons": {
     "download": "Download",
