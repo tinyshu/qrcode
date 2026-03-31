@@ -79,7 +79,8 @@ export default function SiteHeader({ beforeLocaleSwitch }: SiteHeaderProps) {
             className="shrink-0 text-xs font-medium leading-tight text-primary underline decoration-primary/60 underline-offset-2 hover:opacity-90 md:text-sm"
             href="https://aidh.site"
             target="_blank"
-            rel="noopener noreferrer"
+            rel="noopener"
+            referrerPolicy="unsafe-url"
           >
             {t("nav.linkAidh")}
           </a>
@@ -180,7 +181,8 @@ export default function SiteHeader({ beforeLocaleSwitch }: SiteHeaderProps) {
                 className="rounded-lg px-3 py-3 text-base font-medium text-primary underline decoration-primary/50 underline-offset-2"
                 href="https://aidh.site"
                 target="_blank"
-                rel="noopener noreferrer"
+                rel="noopener"
+                referrerPolicy="unsafe-url"
                 onClick={() => setMobileNavOpen(false)}
               >
                 {t("nav.linkAidh")}
