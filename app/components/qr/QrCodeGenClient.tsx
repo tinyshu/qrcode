@@ -38,6 +38,21 @@ function withAutoVersionFallback(options: QrBuildOptions): QrBuildOptions {
 
 const SNAPSHOT_KEY = "qrgen-i18n-snapshot";
 
+/**
+ * 将完整输入 POST 到服务端，由 Cloud Function `console.log` 写入 EdgeOne Pages 日志。
+ * 控制台「日志分析」文本过滤关键字：`EDGEONE_QR_GENERATE_INPUT`（与 app/api/qr-generate-log 一致）
+ */
+function logGenerateInputForEdgeOne(inputUrl: string) {
+  void fetch("/api/qr-generate-log", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ inputUrl }),
+    keepalive: true,
+  }).catch(() => {
+    // 静默失败，不阻塞本地生成
+  });
+}
+
 type QrPageSnapshot = {
   inputUrl: string;
   hasGenerated: boolean;
@@ -294,6 +309,8 @@ export default function QrCodeGenClient() {
 
     const content = inputUrl.replace(/\r?\n/g, "").trim();
     if (!content) return;
+
+    logGenerateInputForEdgeOne(content);
 
     setIsGenerating(true);
     setHasGenerated(true);
