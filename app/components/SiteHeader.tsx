@@ -70,7 +70,7 @@ export default function SiteHeader({ beforeLocaleSwitch }: SiteHeaderProps) {
           </Link>
         </nav>
 
-        <div className="flex min-w-0 items-center gap-1.5 sm:gap-2 md:border-l md:border-gray-200/80 md:pl-5">
+        <div className="flex min-w-0 flex-wrap items-center gap-x-1.5 gap-y-1 sm:gap-x-2 md:border-l md:border-gray-200/80 md:pl-5">
           <span className="shrink-0 text-xs leading-tight text-gray-600 md:text-sm">{t("nav.friendlyLinks")}</span>
           <span className="shrink-0 text-xs text-gray-400 md:text-sm" aria-hidden>
             ·
@@ -83,6 +83,18 @@ export default function SiteHeader({ beforeLocaleSwitch }: SiteHeaderProps) {
             referrerPolicy="unsafe-url"
           >
             {t("nav.linkAidh")}
+          </a>
+          <span className="shrink-0 text-xs text-gray-400 md:text-sm" aria-hidden>
+            ·
+          </span>
+          <a
+            className="shrink-0 text-xs font-medium leading-tight text-primary underline decoration-primary/60 underline-offset-2 hover:opacity-90 md:text-sm"
+            href="https://crazygames99.top/"
+            target="_blank"
+            rel="noopener"
+            referrerPolicy="unsafe-url"
+          >
+            {t("nav.linkFreeGames")}
           </a>
         </div>
 
@@ -186,6 +198,16 @@ export default function SiteHeader({ beforeLocaleSwitch }: SiteHeaderProps) {
                 onClick={() => setMobileNavOpen(false)}
               >
                 {t("nav.linkAidh")}
+              </a>
+              <a
+                className="rounded-lg px-3 py-3 text-base font-medium text-primary underline decoration-primary/50 underline-offset-2"
+                href="https://crazygames99.top/"
+                target="_blank"
+                rel="noopener"
+                referrerPolicy="unsafe-url"
+                onClick={() => setMobileNavOpen(false)}
+              >
+                {t("nav.linkFreeGames")}
               </a>
               <div className="my-2 border-t border-gray-200" />
               <p className="px-3 pt-1 text-xs font-medium uppercase tracking-wide text-gray-500">
